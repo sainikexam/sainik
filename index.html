@@ -918,11 +918,14 @@ const SUBJECTS = [
   { name:'Social Studies', icon:'📚' },
 ];
 
-// Normalize subject names (General Knowledge -> GK)
+// Normalize subject names (General Knowledge -> GK, Language -> English, Reasoning -> Intelligence)
 function normalizeSubject(subject) {
   if (!subject) return '';
   const s = subject.trim();
-  if (s.toLowerCase() === 'general knowledge') return 'GK';
+  const lower = s.toLowerCase();
+  if (lower === 'general knowledge') return 'GK';
+  if (lower === 'language') return 'English';
+  if (lower === 'reasoning') return 'Intelligence';
   return s;
 }
 
