@@ -918,6 +918,14 @@ const SUBJECTS = [
   { name:'Social Studies', icon:'📚' },
 ];
 
+// Normalize subject names (General Knowledge -> GK)
+function normalizeSubject(subject) {
+  if (!subject) return '';
+  const s = subject.trim();
+  if (s.toLowerCase() === 'general knowledge') return 'GK';
+  return s;
+}
+
 // Test Series Configuration
 const TEST_SERIES = {
   'Class 6': {
@@ -1093,7 +1101,10 @@ async function loadQuestions() {
   const snap = await window._FB.getDocs(
     window._FB.collection(window._FB.db, 'questions')
   );
-  allQuestions = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  allQuestions = snap.docs.map(d => {
+    const data = d.data();
+    return { id: d.id, ...data, subject: normalizeSubject(data.subject) };
+  });
 }
 
 function renderSubjectGrid() {
@@ -1679,7 +1690,7 @@ function adminTab(tab) {
 
 async function saveQuestion() {
   const q = {
-    subject:     document.getElementById('aSubject').value,
+    subject:     normalizeSubject(document.getElementById('aSubject').value),
     chapter:     document.getElementById('aChapter').value.trim(),
     topic:       document.getElementById('aTopic').value.trim(),
     difficulty:  document.getElementById('aDiff').value,
@@ -1880,7 +1891,7 @@ function parseCSV(csv) {
     headers.forEach((h, idx) => row[h] = (vals[idx] || '').trim().replace(/^"|"$/g,''));
 
     const q = {
-      subject:     row['subject'],
+      subject:     normalizeSubject(row['subject']),
       chapter:     row['chapter'],
       topic:       row['topic'],
       difficulty:  row['difficulty'] || 'Medium',
