@@ -147,6 +147,25 @@ textarea.form-input{resize:vertical;min-height:80px}
 .result-actions{display:flex;gap:.8rem;justify-content:center;flex-wrap:wrap}
 .result-actions .btn-start{font-size:.88rem;padding:10px 22px}
 
+/* REVIEW WRONG QUESTIONS */
+.review-section{margin-top:1.5rem;text-align:left}
+.review-header{font-family:'Rajdhani',sans-serif;font-size:1.1rem;font-weight:700;color:var(--olive-dark);margin-bottom:.8rem;display:flex;align-items:center;gap:.5rem}
+.review-encourage{background:linear-gradient(135deg,#eafaf1,#d5f5e3);border-radius:12px;padding:1rem;margin-bottom:1rem;font-size:.88rem;color:#145a32;border-left:4px solid var(--green)}
+.review-improve{background:linear-gradient(135deg,#fef9e7,#fcf3cf);border-radius:12px;padding:1rem;margin-bottom:1rem;font-size:.88rem;color:#7d6608;border-left:4px solid #f1c40f}
+.review-card{background:var(--cream);border-radius:12px;padding:.9rem 1rem;margin-bottom:.6rem;border-left:4px solid var(--red)}
+.review-q-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.4rem;flex-wrap:wrap;gap:.3rem}
+.review-q-num{font-family:'Rajdhani',sans-serif;font-weight:700;color:var(--red);font-size:.85rem}
+.review-q-subject{font-size:.7rem;color:var(--white);background:var(--olive);padding:2px 8px;border-radius:10px}
+.review-q-chapter{font-size:.7rem;color:var(--text-muted);background:var(--sand);padding:2px 8px;border-radius:10px}
+.review-q-text{font-size:.88rem;font-weight:600;margin-bottom:.5rem;line-height:1.5}
+.review-answer{font-size:.82rem;color:var(--green);font-weight:600}
+.review-your-answer{font-size:.78rem;color:var(--red);margin-bottom:.3rem}
+.review-explanation{font-size:.78rem;color:var(--olive);margin-top:.4rem;padding-top:.4rem;border-top:1px dashed var(--sand)}
+.perfect-score{text-align:center;padding:1.5rem;background:linear-gradient(135deg,#fef9e7,#fcf3cf);border-radius:16px;margin-top:1rem}
+.perfect-score-icon{font-size:3rem;margin-bottom:.5rem}
+.perfect-score-text{font-family:'Rajdhani',sans-serif;font-size:1.3rem;font-weight:700;color:var(--olive-dark)}
+.perfect-score-sub{font-size:.85rem;color:var(--text-muted);margin-top:.3rem}
+
 /* NOTES BROWSE */
 .chapter-list{display:flex;flex-direction:column;gap:.5rem;margin-bottom:1.5rem}
 .chapter-card{background:var(--white);border-radius:12px;padding:.9rem 1.2rem;cursor:pointer;box-shadow:var(--shadow);display:flex;justify-content:space-between;align-items:center;transition:all .2s;border-left:4px solid var(--olive-light)}
@@ -414,6 +433,7 @@ textarea.form-input{resize:vertical;min-height:80px}
         <button class="btn-start" onclick="showPage('home')">← Home</button>
         <button class="btn-start" onclick="startQuiz()">🔄 Retry</button>
       </div>
+      <div class="review-section" id="reviewSection"></div>
     </div>
   </div>
 </div>
@@ -679,7 +699,7 @@ const CLASSES=['Class 6','Class 9'];
 
 let allQuestions=[],allNotes=[],notesCacheTime=0;
 const CACHE_TTL=5*60*1000;
-let currentQuiz={questions:[],index:0,correct:0,wrong:0,timedOut:0,selectedSubject:'',chapter:'',topic:''};
+let currentQuiz={questions:[],index:0,correct:0,wrong:0,timedOut:0,selectedSubject:'',chapter:'',topic:'',wrongAnswers:[]};
 let timerInterval=null,lbCurrentFilter='All',bookmarkedQuestions=[];
 let browseState={cls:'Class 6',subject:null,chapter:null};
 
@@ -777,7 +797,7 @@ function startQuiz(){
   if(ch)pool=pool.filter(q=>q.chapter===ch);if(tp)pool=pool.filter(q=>q.topic===tp);
   if(!pool.length){showToast('No questions found!');return}
   pool=pool.sort(()=>Math.random()-.5).slice(0,cnt);
-  currentQuiz.questions=pool;currentQuiz.index=0;currentQuiz.correct=0;currentQuiz.wrong=0;currentQuiz.timedOut=0;currentQuiz.chapter=ch;currentQuiz.topic=tp;
+  currentQuiz.questions=pool;currentQuiz.index=0;currentQuiz.correct=0;currentQuiz.wrong=0;currentQuiz.timedOut=0;currentQuiz.chapter=ch;currentQuiz.topic=tp;currentQuiz.wrongAnswers=[];
   showPage('quiz');renderQuestion();
 }
 
@@ -802,7 +822,7 @@ function pickOption(idx){
   const q=currentQuiz.questions[currentQuiz.index],correct=parseInt(q.correct);
   document.querySelectorAll('.option-btn').forEach(b=>b.classList.add('disabled'));
   document.getElementById('qopt'+correct).classList.add('correct');
-  if(idx===correct)currentQuiz.correct++;else{currentQuiz.wrong++;document.getElementById('qopt'+idx).classList.add('wrong')}
+  if(idx===correct)currentQuiz.correct++;else{currentQuiz.wrong++;document.getElementById('qopt'+idx).classList.add('wrong');currentQuiz.wrongAnswers.push({qNum:currentQuiz.index+1,question:q,yourAnswer:idx,reason:'wrong'})}
   if(q.explanation){document.getElementById('explanationText').textContent=q.explanation;document.getElementById('explanationBox').classList.add('show')}
   document.getElementById('nextBtn').classList.add('show');
 }
@@ -810,6 +830,7 @@ function autoReveal(){
   const q=currentQuiz.questions[currentQuiz.index],correct=parseInt(q.correct);
   document.querySelectorAll('.option-btn').forEach(b=>b.classList.add('disabled'));
   document.getElementById('qopt'+correct).classList.add('correct');
+  currentQuiz.wrongAnswers.push({qNum:currentQuiz.index+1,question:q,yourAnswer:-1,reason:'timeout'});
   if(q.explanation){document.getElementById('explanationText').textContent=q.explanation;document.getElementById('explanationBox').classList.add('show')}
   document.getElementById('nextBtn').classList.add('show');
 }
@@ -826,6 +847,7 @@ async function nextQuestion(){
   const ring=document.getElementById('resultRing');
   ring.className='result-score-ring '+(pct>=90?'excellent':pct>=75?'good':pct>=50?'avg':'poor');
   document.getElementById('resultTitle').textContent=pct>=90?'Excellent! 🌟':pct>=75?'Great job! 🎖️':pct>=50?'Good effort! 💪':'Keep practicing! 📚';
+  renderReviewSection(pct);
   showPage('result');
 
   const score={subject:currentQuiz.selectedSubject,chapter:currentQuiz.chapter||'',topic:currentQuiz.topic||'',total:tot,correct:currentQuiz.correct,pct,ts:Date.now()};
@@ -833,6 +855,66 @@ async function nextQuestion(){
     await window._FB.updateDoc(window._FB.doc(window._FB.db,'users',window.currentUser.uid),{scores:window._FB.arrayUnion(score)});
     window.currentUser.scores=window.currentUser.scores||[];window.currentUser.scores.push(score);
   }catch(e){}
+}
+
+function renderReviewSection(pct){
+  const el=document.getElementById('reviewSection');
+  const wrong=currentQuiz.wrongAnswers;
+  const keys=['A','B','C','D'];
+  
+  if(wrong.length===0){
+    // Perfect score!
+    el.innerHTML=`
+      <div class="perfect-score">
+        <div class="perfect-score-icon">🏆</div>
+        <div class="perfect-score-text">Perfect Score! You're a Star!</div>
+        <div class="perfect-score-sub">You got every question right! Keep up the amazing work!</div>
+      </div>`;
+    return;
+  }
+  
+  // Group wrong answers by subject/chapter
+  const subjectCount={};
+  wrong.forEach(w=>{
+    const subj=w.question.subject||'General';
+    subjectCount[subj]=(subjectCount[subj]||0)+1;
+  });
+  const topSubject=Object.entries(subjectCount).sort((a,b)=>b[1]-a[1])[0];
+  
+  let encourageMsg='';
+  if(pct>=75){
+    encourageMsg=`<div class="review-encourage">🌟 <strong>Great work!</strong> You're doing really well! Just a few questions to review below. You're so close to perfection!</div>`;
+  }else if(pct>=50){
+    encourageMsg=`<div class="review-improve">💪 <strong>Good effort!</strong> You're on the right track! Review these questions and you'll do even better next time. Focus especially on <strong>${topSubject?topSubject[0]:''}</strong>.</div>`;
+  }else{
+    encourageMsg=`<div class="review-improve">📚 <strong>Keep learning!</strong> Every expert was once a beginner. Review these topics carefully and practice more. You'll improve quickly! Focus on <strong>${topSubject?topSubject[0]:''}</strong>.</div>`;
+  }
+  
+  const cardsHtml=wrong.map(w=>{
+    const q=w.question;
+    const correctAns=keys[parseInt(q.correct)]+'. '+q.options[parseInt(q.correct)];
+    const yourAns=w.yourAnswer>=0?keys[w.yourAnswer]+'. '+q.options[w.yourAnswer]:'⏱️ Time ran out';
+    return `
+      <div class="review-card">
+        <div class="review-q-header">
+          <span class="review-q-num">Q${w.qNum} ${w.reason==='timeout'?'⏱️':''}</span>
+          <span class="review-q-subject">${q.subject||'General'}</span>
+          <span class="review-q-chapter">${q.chapter||''} ${q.topic?'› '+q.topic:''}</span>
+        </div>
+        <div class="review-q-text">${q.question}</div>
+        <div class="review-your-answer">Your answer: ${yourAns}</div>
+        <div class="review-answer">✓ Correct: ${correctAns}</div>
+        ${q.explanation?`<div class="review-explanation">💡 ${q.explanation}</div>`:''}
+      </div>`;
+  }).join('');
+  
+  el.innerHTML=`
+    <div class="review-header">📝 Questions to Review (${wrong.length})</div>
+    ${encourageMsg}
+    ${cardsHtml}
+    <div style="text-align:center;margin-top:1rem;font-size:.85rem;color:var(--text-muted)">
+      💡 <em>Tip: Bookmark tricky questions during the test to practice them later!</em>
+    </div>`;
 }
 
 /* ══ BOOKMARKS ══ */
