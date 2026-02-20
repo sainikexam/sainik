@@ -793,7 +793,7 @@ function renderQuestion(){
   document.getElementById('optionsList').innerHTML=q.options.map((o,j)=>`<button class="option-btn" onclick="pickOption(${j})" id="qopt${j}"><span class="option-key">${keys[j]}</span>${o}</button>`).join('');
   document.getElementById('explanationBox').classList.remove('show');
   document.getElementById('nextBtn').classList.remove('show');
-  let time=30;const td=document.getElementById('timerDisplay');td.textContent=time;td.classList.remove('danger');
+  let time=90;const td=document.getElementById('timerDisplay');td.textContent=time;td.classList.remove('danger');
   timerInterval=setInterval(()=>{time--;td.textContent=time;if(time<=5)td.classList.add('danger');if(time<=0){clearInterval(timerInterval);currentQuiz.timedOut++;autoReveal()}},1000);
 }
 
