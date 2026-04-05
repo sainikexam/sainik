@@ -2990,30 +2990,34 @@ function pnBuildReport(log) {
   return msg;
 }
 
-// ── Send: Email (EmailJS) ───────────────────────────────────
+// ── Send: Email via EmailJS REST API (no SDK quirks) ─────────
 async function pnSendEmail(msg, subjectLine) {
   const s = pnLoadSettings();
   if (!s.emailEnabled)                                   return { ok: false, reason: 'Email not enabled' };
   if (!s.ejServiceId || !s.ejTemplateId || !s.ejPublicKey) return { ok: false, reason: 'EmailJS credentials missing — check Service ID, Template ID and Public Key' };
   if (!s.parentEmail)                                    return { ok: false, reason: 'Parent email missing — save settings first' };
-  if (typeof emailjs === 'undefined')                    return { ok: false, reason: 'EmailJS SDK not loaded — check internet connection' };
   try {
-    emailjs.init({ publicKey: s.ejPublicKey });   // ensure SDK is initialised
-    const templateParams = {
-      to_email: s.parentEmail.trim(),
-      to_name:  (s.parentName || 'Parent').trim(),
-      subject:  subjectLine || 'SainikPrep Daily Report',
-      message:  msg
-    };
-    await emailjs.send(s.ejServiceId.trim(), s.ejTemplateId.trim(), templateParams);
-    return { ok: true };
+    // Use the EmailJS REST API directly — avoids all SDK init/recipient bugs
+    const resp = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        service_id:  s.ejServiceId.trim(),
+        template_id: s.ejTemplateId.trim(),
+        user_id:     s.ejPublicKey.trim(),   // public key
+        template_params: {
+          to_email: s.parentEmail.trim(),
+          to_name:  (s.parentName  || 'Parent').trim(),
+          subject:  subjectLine || 'SainikPrep Daily Report',
+          message:  msg
+        }
+      })
+    });
+    if (resp.ok) return { ok: true };
+    const errText = await resp.text().catch(() => resp.statusText);
+    return { ok: false, reason: `EmailJS API error (${resp.status}): ${errText}` };
   } catch (e) {
-    const reason = e.text || e.message || JSON.stringify(e);
-    // Friendly hint for the most common mistake
-    if (reason.toLowerCase().includes('recipient') || reason.toLowerCase().includes('empty')) {
-      return { ok: false, reason: reason + ' — In EmailJS dashboard → your template → set the "To Email" field to: {{to_email}}' };
-    }
-    return { ok: false, reason };
+    return { ok: false, reason: 'Network error — ' + (e.message || String(e)) };
   }
 }
 
