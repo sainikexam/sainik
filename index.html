@@ -750,8 +750,8 @@ textarea.form-input{resize:vertical;min-height:80px}
         <div id="importFileSection">
           <div style="background:var(--sand);border-radius:12px;padding:1rem 1.2rem;margin-bottom:1rem;border-left:4px solid var(--olive-light);font-size:.85rem;line-height:1.7">
             <strong>CSV Column Headers (Row 1):</strong><br>
-            <code style="background:var(--white);padding:2px 6px;border-radius:4px;font-size:.8rem">subject | chapter | topic | difficulty | question | optionA | optionB | optionC | optionD | correct | explanation</code><br>
-            <b>correct</b> = A, B, C, or D
+            <code style="background:var(--white);padding:2px 6px;border-radius:4px;font-size:.8rem">subject | chapter | topic | difficulty | question | optionA | optionB | optionC | optionD | correct | explanation | date</code><br>
+            <b>correct</b> = A, B, C, or D &nbsp;·&nbsp; <b>date</b> = YYYY-MM-DD (optional, links to Daily Quiz)
           </div>
           <div class="form-row one">
             <label class="form-label">Select CSV File</label>
@@ -1455,7 +1455,9 @@ function parseCSV(csv){
     const vals=splitCSVLine(lines[i]),row={};
     headers.forEach((h,idx)=>row[h]=(vals[idx]||'').trim().replace(/^"|"$/g,''));
     const q={subject:normalizeSubject(row['subject']),chapter:row['chapter'],topic:row['topic'],difficulty:row['difficulty']||'Medium',question:row['question'],options:[row['optiona'],row['optionb'],row['optionc'],row['optiond']],correct:'ABCD'.indexOf(row['correct'].toUpperCase()),explanation:row['explanation']||'',createdAt:Date.now(),_rowNum:i+1,_errors:[]};
+    if(row['date']&&row['date'].trim())q.date=row['date'].trim(); // optional date column
     if(!q.subject)q._errors.push('no subject');if(!q.chapter)q._errors.push('no chapter');if(!q.topic)q._errors.push('no topic');if(!q.question)q._errors.push('no question');if(q.options.some(o=>!o))q._errors.push('missing option(s)');if(q.correct===-1)q._errors.push('correct must be A/B/C/D');
+    if(q.date&&!/^\d{4}-\d{2}-\d{2}$/.test(q.date))q._errors.push('date must be YYYY-MM-DD');
     rows.push(q);
   }
   return rows;
@@ -1479,7 +1481,8 @@ async function renderImportPreview(){
     const hasErr=r._errors.length>0,isDup=r._isDup;
     const status=hasErr?`<span style="color:var(--red);font-size:.75rem;font-weight:700">✕ ${r._errors.join(', ')}</span>`:isDup?`<span style="color:#856404;font-size:.75rem;font-weight:700">⚠ Dup</span>`:`<span style="color:var(--green);font-size:.75rem;font-weight:700">✓ Ready</span>`;
     const cl=r.correct>=0?'ABCD'[r.correct]:'?';
-    return `<tr style="${hasErr?'opacity:.5':''}"><td style="color:var(--text-muted)">${r._rowNum}</td><td><span class="badge badge-olive">${r.subject||'–'}</span></td><td>${r.chapter||'–'}<br><span style="color:var(--text-muted);font-size:.7rem">${r.topic||'–'}</span></td><td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.question||'–'}</td><td style="font-weight:700;color:var(--olive)">${cl}</td><td>${status}</td></tr>`;
+    const dateBadge=r.date?`<span style="background:rgba(41,128,185,.12);color:#1a5276;font-size:.7rem;font-weight:700;padding:1px 6px;border-radius:8px;margin-left:3px">📅 ${r.date}</span>`:'';
+    return `<tr style="${hasErr?'opacity:.5':''}"><td style="color:var(--text-muted)">${r._rowNum}</td><td><span class="badge badge-olive">${r.subject||'–'}</span></td><td>${r.chapter||'–'}<br><span style="color:var(--text-muted);font-size:.7rem">${r.topic||'–'}</span></td><td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.question||'–'}${dateBadge}</td><td style="font-weight:700;color:var(--olive)">${cl}</td><td>${status}</td></tr>`;
   }).join('');
 
   document.getElementById('importPreviewWrap').style.display='';
