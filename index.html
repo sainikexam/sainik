@@ -2962,19 +2962,26 @@ function pnBuildReport(log) {
 async function pnSendEmail(msg, subjectLine) {
   const s = pnLoadSettings();
   if (!s.emailEnabled)                                   return { ok: false, reason: 'Email not enabled' };
-  if (!s.ejServiceId || !s.ejTemplateId || !s.ejPublicKey) return { ok: false, reason: 'EmailJS credentials missing' };
-  if (!s.parentEmail)                                    return { ok: false, reason: 'Parent email missing' };
-  if (typeof emailjs === 'undefined')                    return { ok: false, reason: 'EmailJS SDK not loaded' };
+  if (!s.ejServiceId || !s.ejTemplateId || !s.ejPublicKey) return { ok: false, reason: 'EmailJS credentials missing — check Service ID, Template ID and Public Key' };
+  if (!s.parentEmail)                                    return { ok: false, reason: 'Parent email missing — save settings first' };
+  if (typeof emailjs === 'undefined')                    return { ok: false, reason: 'EmailJS SDK not loaded — check internet connection' };
   try {
-    await emailjs.send(s.ejServiceId, s.ejTemplateId, {
-      to_email: s.parentEmail,
-      to_name:  s.parentName || 'Parent',
+    emailjs.init({ publicKey: s.ejPublicKey });   // ensure SDK is initialised
+    const templateParams = {
+      to_email: s.parentEmail.trim(),
+      to_name:  (s.parentName || 'Parent').trim(),
       subject:  subjectLine || 'SainikPrep Daily Report',
       message:  msg
-    }, { publicKey: s.ejPublicKey });
+    };
+    await emailjs.send(s.ejServiceId.trim(), s.ejTemplateId.trim(), templateParams);
     return { ok: true };
   } catch (e) {
-    return { ok: false, reason: e.text || e.message || String(e) };
+    const reason = e.text || e.message || JSON.stringify(e);
+    // Friendly hint for the most common mistake
+    if (reason.toLowerCase().includes('recipient') || reason.toLowerCase().includes('empty')) {
+      return { ok: false, reason: reason + ' — In EmailJS dashboard → your template → set the "To Email" field to: {{to_email}}' };
+    }
+    return { ok: false, reason };
   }
 }
 
