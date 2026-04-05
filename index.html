@@ -24,29 +24,31 @@ function _ready(fn){if(typeof hideLoader==='function'){fn()}else{setTimeout(()=>
 
 onAuthStateChanged(auth,async u=>{
   if(u){
-    // Try Firestore, but NEVER block login if it fails
     let userData=null;
+    let firestoreOk=false;
     try{
       const s=await getDoc(doc(db,'users',u.uid));
       if(s.exists()){
         userData=s.data();
+        firestoreOk=true;
       } else {
-        // Doc missing — try to create it (may fail if rules not set, that's OK)
+        // Doc missing — write it now (covers new registrations + users who registered before rules were set)
         const pendingName=window._pendingName||u.displayName||u.email.split('@')[0];
         window._pendingName=null;
-        const fallback={name:pendingName,email:u.email,isAdmin:false,scores:[],createdAt:Date.now()};
-        try{await setDoc(doc(db,'users',u.uid),fallback);}catch(we){console.warn('Could not write user profile (check Firestore Rules):',we.code,we.message);}
-        userData=fallback;
+        const newDoc={name:pendingName,email:u.email,isAdmin:false,scores:[],createdAt:Date.now()};
+        await setDoc(doc(db,'users',u.uid),newDoc);
+        userData=newDoc;
+        firestoreOk=true;
       }
     }catch(err){
-      // Firestore blocked (rules not configured) — log warning, still allow login
-      console.warn('Firestore read blocked. Login will work but profile features limited. Fix Firestore Rules:',err.code,err.message);
+      // Firestore blocked — still allow login, but show a banner so the admin knows to fix rules
+      console.warn('Firestore error:',err.code,err.message);
       const pendingName=window._pendingName||u.displayName||u.email.split('@')[0];
       window._pendingName=null;
       userData={name:pendingName,email:u.email,isAdmin:false,scores:[]};
+      firestoreOk=false;
     }
     window.currentUser={uid:u.uid,email:u.email,...userData};
-    // Wait for page functions to be ready (they're in a regular script tag)
     _ready(()=>{
       const adminBtn=document.getElementById('adminNavBtn');
       if(adminBtn)adminBtn.style.display=window.currentUser.isAdmin?'':'none';
@@ -55,6 +57,21 @@ onAuthStateChanged(auth,async u=>{
       hideLoader();
       showPage('home');
       if(typeof loadBookmarks==='function')loadBookmarks();
+      // Show Firestore rules warning banner if blocked
+      if(!firestoreOk){
+        showToast('⚠️ Firestore Rules blocking database. Go to Firebase Console → Firestore → Rules and allow reads/writes for authenticated users.');
+        // Also show a persistent banner at the top of home page
+        const wb=document.getElementById('welcomeBanner');
+        if(wb&&!document.getElementById('firestoreWarn')){
+          const warn=document.createElement('div');
+          warn.id='firestoreWarn';
+          warn.style.cssText='background:#fdecea;border:2px solid #c0392b;border-radius:12px;padding:.8rem 1.2rem;margin-bottom:1rem;font-size:.83rem;color:#7a1b1b;line-height:1.7';
+          warn.innerHTML='<strong>⚠️ Firestore Rules Issue:</strong> Your database writes are being blocked. Users will not be saved to Firestore until you fix this.<br>'
+            +'<strong>Fix:</strong> Go to <a href="https://console.firebase.google.com/project/aissee-quiz/firestore/rules" target="_blank" style="color:#c0392b;font-weight:700">Firebase Console → Firestore → Rules</a> and paste:<br>'
+            +'<code style="background:white;padding:2px 6px;border-radius:4px;font-size:.8rem;display:block;margin-top:.4rem;white-space:pre-wrap">rules_version = \'2\';\nservice cloud.firestore {\n  match /databases/{database}/documents {\n    match /{document=**} {\n      allow read, write: if request.auth != null;\n    }\n  }\n}</code>';
+          wb.parentNode.insertBefore(warn,wb);
+        }
+      }
     });
   } else {
     window.currentUser=null;
@@ -544,7 +561,7 @@ textarea.form-input{resize:vertical;min-height:80px}
 <!-- ═══ HOME (Quiz + Notes combined) ═══ -->
 <div class="page" id="page-home">
   <div class="home-wrap">
-    <div class="welcome-banner">
+    <div class="welcome-banner" id="welcomeBanner">
       <div class="welcome-name" id="welcomeName">Welcome, Cadet! 🎖️</div>
       <div class="welcome-sub">AISSEE preparation — Practice Tests & Study Notes in one place</div>
     </div>
@@ -889,8 +906,13 @@ textarea.form-input{resize:vertical;min-height:80px}
       <div class="admin-form" style="padding:1rem">
         <h3>👤 Users</h3>
         <div style="background:var(--sand);border-radius:10px;padding:.7rem 1rem;margin-bottom:.8rem;font-size:.82rem;border-left:4px solid var(--olive-light);line-height:1.7">
-          <strong>To make someone Admin:</strong> Click <strong>"★ Make Admin"</strong> next to their name. Admin users can see the 🛡️ Admin panel and add questions/notes.<br>
-          <strong>First admin:</strong> go to <a href="https://console.firebase.google.com" target="_blank" style="color:var(--olive);font-weight:700">Firebase Console</a> → Firestore → users → find your UID → set <code style="background:var(--white);padding:1px 5px;border-radius:4px">isAdmin: true</code> manually.
+          <strong>Why users missing from Firestore?</strong> Firebase Auth and Firestore are separate. Users land in Auth first — they only appear here once a Firestore profile doc is written.<br>
+          Most common cause: <strong>Firestore Rules blocking writes</strong>. Fix at <a href="https://console.firebase.google.com/project/aissee-quiz/firestore/rules" target="_blank" style="color:var(--olive);font-weight:700">Firebase Console → Firestore → Rules</a> — allow <code style="background:var(--white);padding:1px 5px;border-radius:4px">request.auth != null</code>.<br>
+          <strong>Then use "Sync My Profile" to backfill your own document.</strong> Each user must log in once after rules are fixed to auto-create their doc.
+        </div>
+        <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.8rem">
+          <button class="btn-sm" onclick="syncCurrentUserToFirestore()">🔄 Sync My Profile to Firestore</button>
+          <button class="btn-sm" onclick="renderUsers()" style="background:var(--olive-light)">↺ Refresh List</button>
         </div>
         <table class="q-list-table"><thead><tr><th>Name</th><th>Email</th><th>Tests</th><th>Avg</th><th>Best</th><th>Role</th></tr></thead><tbody id="usersBody"></tbody></table>
       </div>
@@ -1580,6 +1602,28 @@ async function toggleAdmin(uid,makeAdmin){
     showToast(makeAdmin?'★ Admin access granted!':'↓ Admin access removed.');
     renderUsers();
   }catch(e){showToast('❌ '+e.message);}
+}
+
+async function syncCurrentUserToFirestore(){
+  if(!window.currentUser){showToast('Not logged in.');return;}
+  const u=window.currentUser;
+  const btn=event.target;btn.disabled=true;btn.textContent='Syncing…';
+  try{
+    const existing=await window._FB.getDoc(window._FB.doc(window._FB.db,'users',u.uid));
+    if(existing.exists()){
+      showToast('✅ Profile already exists in Firestore! ('+u.email+')');
+    } else {
+      await window._FB.setDoc(window._FB.doc(window._FB.db,'users',u.uid),{
+        name:u.name||u.email.split('@')[0],email:u.email,isAdmin:u.isAdmin||false,
+        scores:u.scores||[],createdAt:Date.now()
+      });
+      showToast('✅ Profile saved to Firestore successfully!');
+    }
+    renderUsers();
+  }catch(e){
+    showToast('❌ Still blocked: '+e.message+'. Fix Firestore Rules first.');
+  }
+  btn.disabled=false;btn.textContent='🔄 Sync My Profile to Firestore';
 }
 
 function esc(s){return(s||'').replace(/'/g,"\\'")}
