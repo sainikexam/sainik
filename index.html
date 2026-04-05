@@ -946,25 +946,43 @@ textarea.form-input{resize:vertical;min-height:80px}
             <label style="font-family:'Rajdhani',sans-serif;font-size:1rem;font-weight:700;color:var(--olive-dark)">📧 Email via EmailJS</label>
             <span style="background:#e3f2fd;color:#1565c0;border-radius:20px;padding:2px 10px;font-size:.72rem;font-weight:700">FREE · 200 emails/month</span>
           </div>
-          <div style="background:var(--sand);border-radius:10px;padding:.7rem 1rem;font-size:.78rem;margin-bottom:.7rem;line-height:1.7">
+          <div style="background:#fff8e1;border-radius:10px;padding:.7rem 1rem;font-size:.78rem;margin-bottom:.5rem;line-height:1.8;border-left:3px solid #f9a825">
+            <strong>⚠️ Important — EmailJS free plan requires static recipient:</strong><br>
+            In your EmailJS template's <strong>"To Email"</strong> field you must type the <strong>parent's actual email address</strong> directly (e.g. <code style="background:#fff;padding:1px 5px;border-radius:4px">parent@gmail.com</code>) — not <code style="background:#fff;padding:1px 5px;border-radius:4px">{{to_email}}</code>. Dynamic recipients are a paid-plan feature.
+          </div>
+          <div style="background:var(--sand);border-radius:10px;padding:.7rem 1rem;font-size:.78rem;margin-bottom:.7rem;line-height:1.8">
             1️⃣ Sign up free at <a href="https://www.emailjs.com" target="_blank" style="color:var(--olive);font-weight:700">emailjs.com</a><br>
             2️⃣ Add an Email Service (Gmail / Outlook) → copy <strong>Service ID</strong><br>
-            3️⃣ Create a template → set body to <code style="background:#fff;padding:1px 5px;border-radius:4px">{{message}}</code> → copy <strong>Template ID</strong><br>
-            4️⃣ Account → API Keys → copy <strong>Public Key</strong>
+            3️⃣ Create a template → <strong>To Email = parent's real email</strong>, Subject = <code style="background:#fff;padding:1px 5px;border-radius:4px">{{subject}}</code>, Body = <code style="background:#fff;padding:1px 5px;border-radius:4px">{{message}}</code> → copy <strong>Template ID</strong><br>
+            4️⃣ Account → General → copy <strong>Public Key</strong>
           </div>
           <label style="display:flex;align-items:center;gap:.5rem;font-size:.88rem;margin-bottom:.7rem;cursor:pointer">
             <input type="checkbox" id="pnEmailEnabled" onchange="pnToggleEmailFields()"/> Enable email reports
           </label>
           <div id="pnEmailFields" style="display:none">
             <div class="form-row">
-              <div><label class="form-label">Parent Email</label><input class="form-input" type="email" id="pnParentEmail" placeholder="parent@gmail.com"/></div>
               <div><label class="form-label">EmailJS Service ID</label><input class="form-input" id="pnEjServiceId" placeholder="service_xxxxxxx"/></div>
+              <div><label class="form-label">EmailJS Template ID</label><input class="form-input" id="pnEjTemplateId" placeholder="template_xxxxxxx"/></div>
             </div>
             <div class="form-row">
-              <div><label class="form-label">EmailJS Template ID</label><input class="form-input" id="pnEjTemplateId" placeholder="template_xxxxxxx"/></div>
               <div><label class="form-label">EmailJS Public Key</label><input class="form-input" id="pnEjPublicKey" placeholder="xxxxxxxxxxxxxxxxxxxx"/></div>
             </div>
           </div>
+        </div>
+
+        <!-- MAILTO FALLBACK -->
+        <div style="margin:.5rem 0 .5rem;border-top:1px solid var(--sand);padding-top:.9rem">
+          <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.6rem">
+            <label style="font-family:'Rajdhani',sans-serif;font-size:1rem;font-weight:700;color:var(--olive-dark)">✉️ Quick Email (mailto)</label>
+            <span style="background:#f3e5f5;color:#6a1b9a;border-radius:20px;padding:2px 10px;font-size:.72rem;font-weight:700">NO SETUP · Always works</span>
+          </div>
+          <div style="background:var(--sand);border-radius:10px;padding:.7rem 1rem;font-size:.78rem;margin-bottom:.7rem;line-height:1.7">
+            Opens your phone/computer email app with the full report pre-filled. Just tap <strong>Send</strong>. Works with Gmail, Outlook, or any email app — no API keys needed.
+          </div>
+          <div class="form-row">
+            <div><label class="form-label">Parent Email (for mailto)</label><input class="form-input" type="email" id="pnParentEmail" placeholder="parent@gmail.com"/></div>
+          </div>
+          <button class="btn-sm" onclick="pnOpenMailto()" style="background:var(--olive);color:#fff;margin-top:.3rem">✉️ Open Email App with Today's Report</button>
         </div>
 
         <!-- WHATSAPP -->
@@ -2885,6 +2903,7 @@ function pnLoadSettingsToForm() {
   pnToggleWaFields();
 }
 
+
 function pnSaveSettingsFromForm() {
   const get = id => (document.getElementById(id)?.value || '').trim();
   const chk = id => document.getElementById(id)?.checked || false;
@@ -2893,7 +2912,7 @@ function pnSaveSettingsFromForm() {
     studentName: get('pnStudentName'),
     reportTime:  get('pnReportTime') || '21:00',
     emailEnabled: chk('pnEmailEnabled'),
-    parentEmail: get('pnParentEmail'),
+    parentEmail: get('pnParentEmail'),   // used for mailto:
     ejServiceId: get('pnEjServiceId'),
     ejTemplateId: get('pnEjTemplateId'),
     ejPublicKey:  get('pnEjPublicKey'),
@@ -2990,35 +3009,46 @@ function pnBuildReport(log) {
   return msg;
 }
 
-// ── Send: Email via EmailJS REST API (no SDK quirks) ─────────
+// ── Send: Email via EmailJS REST API ─────────────────────────
+// NOTE: EmailJS free plan requires the recipient to be a STATIC
+// address set directly in the template's "To Email" field.
+// We only pass subject + message as template params.
 async function pnSendEmail(msg, subjectLine) {
   const s = pnLoadSettings();
   if (!s.emailEnabled)                                   return { ok: false, reason: 'Email not enabled' };
   if (!s.ejServiceId || !s.ejTemplateId || !s.ejPublicKey) return { ok: false, reason: 'EmailJS credentials missing — check Service ID, Template ID and Public Key' };
-  if (!s.parentEmail)                                    return { ok: false, reason: 'Parent email missing — save settings first' };
   try {
-    // Use the EmailJS REST API directly — avoids all SDK init/recipient bugs
     const resp = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
       method:  'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         service_id:  s.ejServiceId.trim(),
         template_id: s.ejTemplateId.trim(),
-        user_id:     s.ejPublicKey.trim(),   // public key
+        user_id:     s.ejPublicKey.trim(),
         template_params: {
-          to_email: s.parentEmail.trim(),
-          to_name:  (s.parentName  || 'Parent').trim(),
-          subject:  subjectLine || 'SainikPrep Daily Report',
-          message:  msg
+          subject: subjectLine || 'SainikPrep Daily Report',
+          message: msg
         }
       })
     });
     if (resp.ok) return { ok: true };
     const errText = await resp.text().catch(() => resp.statusText);
-    return { ok: false, reason: `EmailJS API error (${resp.status}): ${errText}` };
+    return { ok: false, reason: `EmailJS error (${resp.status}): ${errText}` };
   } catch (e) {
     return { ok: false, reason: 'Network error — ' + (e.message || String(e)) };
   }
+}
+
+// ── Open mailto: with full report pre-filled ────────────────
+function pnOpenMailto() {
+  const s   = pnLoadSettings();
+  const log = pnGetTodayLog();
+  const msg = pnBuildReport(log);
+  const today = log.date || new Date().toISOString().slice(0, 10);
+  const to      = encodeURIComponent(s.parentEmail || '');
+  const subject = encodeURIComponent(`SainikPrep Report — ${today}`);
+  const body    = encodeURIComponent(msg);
+  window.open(`mailto:${to}?subject=${subject}&body=${body}`, '_self');
 }
 
 // ── Send: WhatsApp (Callmebot — free HTTP GET API) ──────────
@@ -3047,7 +3077,7 @@ async function pnSendNow(dateStr) {
 
   if (s.emailEnabled) {
     const r = await pnSendEmail(msg, subj);
-    results.push(`📧 Email: ${r.ok ? '✅ Sent to ' + s.parentEmail : '❌ ' + r.reason}`);
+    results.push(`📧 Email: ${r.ok ? '✅ Sent via EmailJS' : '❌ ' + r.reason}`);
   }
   if (s.waEnabled) {
     const r = pnSendWhatsApp(msg);
@@ -3083,7 +3113,7 @@ async function pnSendTest() {
 
   if (s.emailEnabled) {
     const r = await pnSendEmail(testMsg, subj);
-    results.push(`📧 Email: ${r.ok ? '✅ Test sent to ' + s.parentEmail : '❌ ' + r.reason}`);
+    results.push(`📧 Email: ${r.ok ? '✅ Test sent via EmailJS' : '❌ ' + r.reason}`);
   }
   if (s.waEnabled) {
     const r = pnSendWhatsApp(testMsg);
