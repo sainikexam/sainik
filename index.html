@@ -707,6 +707,7 @@ textarea.form-input{resize:vertical;min-height:80px}
       <button class="admin-tab" onclick="adminTab('daily')">📅 Daily</button>
       <button class="admin-tab" onclick="adminTab('users')">👤 Users</button>
       <button class="admin-tab" onclick="adminTab('report')">📣 Report</button>
+      <button class="admin-tab" onclick="adminTab('aiprompt')">🤖 AI Prompt</button>
     </div>
 
     <!-- ADD QUESTION -->
@@ -1024,6 +1025,69 @@ textarea.form-input{resize:vertical;min-height:80px}
           <div style="font-family:'Rajdhani',sans-serif;font-size:1rem;font-weight:700;color:var(--olive-dark);margin-bottom:.5rem">📊 Today's Activity Preview</div>
           <div id="pnTodayPreview" style="background:var(--cream);border-radius:10px;padding:.8rem 1rem;font-family:monospace;font-size:.79rem;white-space:pre-wrap;line-height:1.7;color:#334;min-height:60px"></div>
           <button class="btn-sm" onclick="pnRefreshPreview()" style="margin-top:.4rem">↺ Refresh Preview</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- AI PROMPT GENERATOR -->
+    <div class="admin-panel" id="apAiprompt">
+      <div class="admin-form">
+        <h3>🤖 AI Question Prompt Generator</h3>
+        <div style="background:linear-gradient(135deg,#e8eaf6,#f3e5f5);border-radius:12px;padding:.9rem 1.1rem;margin-bottom:1.2rem;font-size:.82rem;border-left:4px solid #5c6bc0;line-height:1.8;color:#283593">
+          This generates a ready-to-paste prompt for <strong>ChatGPT / Gemini / Copilot</strong>. It pre-fills today's subject, topic, phase, and difficulty from the Battle Plan. Copy the prompt, paste into any AI, and paste the CSV output back into the <strong>📥 Import</strong> tab.
+        </div>
+
+        <!-- Controls -->
+        <div class="form-row">
+          <div>
+            <label class="form-label">Date</label>
+            <input class="form-input" type="date" id="aiPromptDate" style="max-width:180px"/>
+          </div>
+          <div>
+            <label class="form-label">Number of Questions</label>
+            <select class="form-input" id="aiPromptCount" style="max-width:140px">
+              <option value="10">10</option>
+              <option value="15">15</option>
+              <option value="20" selected>20</option>
+              <option value="25">25</option>
+              <option value="30">30</option>
+            </select>
+          </div>
+          <div>
+            <label class="form-label">Override Subject (optional)</label>
+            <select class="form-input" id="aiPromptSubject" style="max-width:190px">
+              <option value="">— Auto from Battle Plan —</option>
+              <option>Mathematics</option>
+              <option>English</option>
+              <option>Science</option>
+              <option>GK</option>
+              <option>Intelligence</option>
+              <option>Social Studies</option>
+            </select>
+          </div>
+          <div>
+            <label class="form-label">Override Topic (optional)</label>
+            <input class="form-input" id="aiPromptTopic" placeholder="leave blank = auto" style="max-width:220px"/>
+          </div>
+        </div>
+        <div style="display:flex;gap:.6rem;flex-wrap:wrap;margin:.6rem 0">
+          <button class="btn" onclick="generateAIPrompt()" style="padding:.5rem 1.1rem">⚡ Generate Prompt</button>
+          <button class="btn-sm" onclick="copyAIPrompt()" style="background:var(--olive);color:#fff" id="aiCopyBtn">📋 Copy to Clipboard</button>
+        </div>
+
+        <!-- Prompt output -->
+        <div id="aiPromptInfo" style="display:none;background:#e8f5e9;border-radius:10px;padding:.6rem 1rem;font-size:.8rem;margin-bottom:.6rem;line-height:1.7;border-left:3px solid #43a047"></div>
+        <textarea id="aiPromptOutput" rows="22" readonly
+          style="width:100%;box-sizing:border-box;font-family:monospace;font-size:.77rem;line-height:1.6;background:var(--cream);border:1.5px solid var(--sand);border-radius:10px;padding:.9rem 1rem;resize:vertical;color:#223;outline:none"
+          placeholder="Click ⚡ Generate Prompt to build the prompt for today…"></textarea>
+
+        <div style="margin-top:1rem;background:var(--sand);border-radius:10px;padding:.7rem 1rem;font-size:.78rem;line-height:1.8">
+          <strong>Steps:</strong><br>
+          1️⃣ Click <strong>⚡ Generate Prompt</strong><br>
+          2️⃣ Click <strong>📋 Copy to Clipboard</strong><br>
+          3️⃣ Paste into <a href="https://chat.openai.com" target="_blank" style="color:var(--olive);font-weight:700">ChatGPT</a>, <a href="https://gemini.google.com" target="_blank" style="color:var(--olive);font-weight:700">Gemini</a>, or any AI<br>
+          4️⃣ Copy the CSV output from the AI<br>
+          5️⃣ Go to <strong>📥 Import</strong> tab → paste CSV → Preview → Save
         </div>
       </div>
     </div>
@@ -1513,7 +1577,7 @@ async function doSearch(){
 let importedRows=[];
 
 function adminTab(tab){
-  const tabs=['addq','import','listq','addn','listn','daily','users','report'];
+  const tabs=['addq','import','listq','addn','listn','daily','users','report','aiprompt'];
   document.querySelectorAll('.admin-tab').forEach((t,i)=>t.classList.toggle('active',tabs[i]===tab));
   document.querySelectorAll('.admin-panel').forEach(p=>p.classList.remove('active'));
   const panelId='ap'+tab.charAt(0).toUpperCase()+tab.slice(1);
@@ -1521,6 +1585,7 @@ function adminTab(tab){
   if(tab==='listq')renderQList();if(tab==='listn')renderNotesList();if(tab==='users')renderUsers();
   if(tab==='daily'){setDailyDateToday();renderDailyPanel();}
   if(tab==='report'){pnLoadSettingsToForm();pnRefreshPreview();}
+  if(tab==='aiprompt'){aiPromptInit();}
 }
 
 /* ══ CSV / GOOGLE SHEETS IMPORT ══ */
@@ -3257,6 +3322,138 @@ function pnRestartScheduler() {
 
 // Start scheduler on page load
 pnRestartScheduler();
+
+/* ══════════════════════════════════════════════════════════
+   AI QUESTION PROMPT GENERATOR
+   ══════════════════════════════════════════════════════════ */
+
+function aiPromptInit() {
+  // Set date input to today
+  const el = document.getElementById('aiPromptDate');
+  if (el && !el.value) el.value = new Date().toISOString().slice(0, 10);
+}
+
+function generateAIPrompt() {
+  const dateStr  = document.getElementById('aiPromptDate')?.value || new Date().toISOString().slice(0, 10);
+  const count    = parseInt(document.getElementById('aiPromptCount')?.value || '20');
+  const overSub  = (document.getElementById('aiPromptSubject')?.value || '').trim();
+  const overTopic= (document.getElementById('aiPromptTopic')?.value || '').trim();
+
+  const [y, m, d] = dateStr.split('-');
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const dateLabel = `${d} ${months[+m - 1]} ${y}`;
+
+  // Get today's battle plan
+  let planInfo = { mainSubject:'', mainTopic:'', secSubject:'', secTopic:'', revisionTopics:[], phase:'Phase 1 — Foundation', weekNum:1 };
+  try {
+    const plan = getDayPlan(new Date(dateStr + 'T00:00:00'));
+    if (plan) planInfo = plan;
+  } catch(e) {}
+
+  // Decide subject + topic
+  const subject = overSub  || planInfo.mainSubject  || 'Mathematics';
+  const topic   = overTopic|| planInfo.mainTopic     || '';
+  const secSubj = planInfo.secSubject  || '';
+  const secTopic= planInfo.secTopic    || '';
+  const rev     = (planInfo.revisionTopics || []).map(r => `${r.subject}: ${r.topic}`);
+  const phase   = planInfo.phase || 'Phase 1 — Foundation';
+  const weekNum = planInfo.weekNum || 1;
+
+  // Difficulty mix based on phase
+  let diffMix = '60% Easy, 30% Medium, 10% Hard';
+  if (phase.includes('2') || phase.includes('Core'))    diffMix = '40% Easy, 40% Medium, 20% Hard';
+  if (phase.includes('3') || phase.includes('Advanced')) diffMix = '20% Easy, 50% Medium, 30% Hard';
+  if (phase.includes('4') || phase.includes('Revision')) diffMix = '15% Easy, 45% Medium, 40% Hard';
+  if (phase.includes('5') || phase.includes('Final'))    diffMix = '10% Easy, 40% Medium, 50% Hard';
+
+  // Syllabus context for the subject
+  const syllabus = (FULL_SYLLABUS[subject] || []).join(', ');
+
+  // Build the prompt
+  const mainBlock = count + ' questions for ' + subject + (topic ? ` — Topic: "${topic}"` : '');
+  let prompt = '';
+  prompt += `You are an expert question setter for the AISSEE (All India Sainik School Entrance Exam) for Class 6 entry.\n`;
+  prompt += `The student is 10 years old, preparing for the January 2027 exam.\n`;
+  prompt += `Current prep stage: ${phase} (Week ${weekNum}).\n\n`;
+
+  prompt += `═══════════════════════════════════════════\n`;
+  prompt += `TASK: Generate ${count} MCQ questions\n`;
+  prompt += `═══════════════════════════════════════════\n\n`;
+
+  prompt += `PRIMARY (${count} questions)\n`;
+  prompt += `Subject  : ${subject}\n`;
+  prompt += topic ? `Topic    : ${topic}\n` : `Topic    : Mix across the full ${subject} syllabus\n`;
+  prompt += `Difficulty Mix: ${diffMix}\n\n`;
+
+  if (secSubj && !overSub) {
+    prompt += `NOTE: If you want, also include 3–5 bonus questions for:\n`;
+    prompt += `  Subject: ${secSubj}, Topic: ${secTopic || 'any'}\n`;
+    prompt += `  (label these with subject="${secSubj}" in the CSV)\n\n`;
+  }
+
+  if (rev.length && !overSub) {
+    prompt += `REVISION TOPICS (weave 2–3 questions from spaced repetition):\n`;
+    rev.forEach(r => { prompt += `  • ${r}\n`; });
+    prompt += `\n`;
+  }
+
+  prompt += `───────────────────────────────────────────\n`;
+  prompt += `SYLLABUS CONTEXT for ${subject}:\n`;
+  prompt += syllabus + `\n\n`;
+
+  prompt += `───────────────────────────────────────────\n`;
+  prompt += `DIFFICULTY GUIDELINES:\n`;
+  prompt += `Easy   = Direct recall / single-step, suitable for Class 5–6\n`;
+  prompt += `Medium = 2-step reasoning or concept application\n`;
+  prompt += `Hard   = Multi-step / tricky / AISSEE standard\n\n`;
+
+  prompt += `───────────────────────────────────────────\n`;
+  prompt += `OUTPUT FORMAT — CSV ONLY, no extra text before or after.\n`;
+  prompt += `The CSV must have exactly these 12 columns in this order:\n\n`;
+  prompt += `subject,chapter,topic,difficulty,question,optionA,optionB,optionC,optionD,correct,explanation,date\n\n`;
+  prompt += `Rules:\n`;
+  prompt += `• correct = A, B, C, or D (the letter only)\n`;
+  prompt += `• difficulty = Easy | Medium | Hard (exact spelling)\n`;
+  prompt += `• subject = one of: Mathematics | English | Science | GK | Intelligence | Social Studies\n`;
+  prompt += `• date = ${dateStr} (assign to ALL rows)\n`;
+  prompt += `• explanation = 1 sentence explaining the correct answer\n`;
+  prompt += `• Do NOT wrap values in double quotes unless the value contains a comma\n`;
+  prompt += `• Do NOT add a header row — start directly with the first question row\n\n`;
+
+  prompt += `───────────────────────────────────────────\n`;
+  prompt += `EXAMPLE ROW (do not copy this, it's just for format reference):\n`;
+  prompt += `Mathematics,Number System,HCF & LCM,Easy,What is the HCF of 12 and 18?,2,4,6,9,C,HCF of 12 and 18 is 6 because it divides both numbers exactly.,${dateStr}\n\n`;
+
+  prompt += `Now generate ${mainBlock} in the exact CSV format above. Date for all rows = ${dateStr}.\n`;
+
+  // Show in textarea
+  const out = document.getElementById('aiPromptOutput');
+  if (out) out.value = prompt;
+
+  // Info box
+  const info = document.getElementById('aiPromptInfo');
+  if (info) {
+    info.style.display = '';
+    info.innerHTML = `<strong>✅ Prompt ready for ${dateLabel}</strong><br>`
+      + `Subject: <strong>${subject}</strong>${topic ? ` · Topic: <strong>${topic}</strong>` : ' · Full syllabus mix'}`
+      + ` · Phase: ${phase} · Difficulty: ${diffMix}<br>`
+      + `Copy the prompt below → paste into ChatGPT/Gemini → copy the CSV back → use 📥 Import tab.`;
+  }
+}
+
+function copyAIPrompt() {
+  const el = document.getElementById('aiPromptOutput');
+  if (!el || !el.value) { showToast('Generate a prompt first!'); return; }
+  navigator.clipboard.writeText(el.value).then(() => {
+    showToast('✅ Prompt copied to clipboard!');
+    const btn = document.getElementById('aiCopyBtn');
+    if (btn) { btn.textContent = '✅ Copied!'; setTimeout(() => { btn.textContent = '📋 Copy to Clipboard'; }, 2000); }
+  }).catch(() => {
+    el.select();
+    document.execCommand('copy');
+    showToast('✅ Prompt copied!');
+  });
+}
 </script>
 </body>
 </html>
