@@ -946,14 +946,14 @@ textarea.form-input{resize:vertical;min-height:80px}
             <label style="font-family:'Rajdhani',sans-serif;font-size:1rem;font-weight:700;color:var(--olive-dark)">📧 Email via EmailJS</label>
             <span style="background:#e3f2fd;color:#1565c0;border-radius:20px;padding:2px 10px;font-size:.72rem;font-weight:700">FREE · 200 emails/month</span>
           </div>
-          <div style="background:#fff8e1;border-radius:10px;padding:.7rem 1rem;font-size:.78rem;margin-bottom:.5rem;line-height:1.8;border-left:3px solid #f9a825">
-            <strong>⚠️ Important — EmailJS free plan requires static recipient:</strong><br>
-            In your EmailJS template's <strong>"To Email"</strong> field you must type the <strong>parent's actual email address</strong> directly (e.g. <code style="background:#fff;padding:1px 5px;border-radius:4px">parent@gmail.com</code>) — not <code style="background:#fff;padding:1px 5px;border-radius:4px">{{to_email}}</code>. Dynamic recipients are a paid-plan feature.
+          <div style="background:#e8f5e9;border-radius:10px;padding:.7rem 1rem;font-size:.78rem;margin-bottom:.5rem;line-height:1.8;border-left:3px solid #43a047">
+            <strong>✅ Free plan workaround:</strong> In your EmailJS template's <strong>"To Email"</strong> field type exactly: <code style="background:#fff;padding:1px 5px;border-radius:4px">{{to_name}}</code><br>
+            The app will pass the parent's email address as <code style="background:#fff;padding:1px 5px;border-radius:4px">to_name</code> — this tricks EmailJS into sending to a dynamic address on the free plan.
           </div>
           <div style="background:var(--sand);border-radius:10px;padding:.7rem 1rem;font-size:.78rem;margin-bottom:.7rem;line-height:1.8">
             1️⃣ Sign up free at <a href="https://www.emailjs.com" target="_blank" style="color:var(--olive);font-weight:700">emailjs.com</a><br>
             2️⃣ Add an Email Service (Gmail / Outlook) → copy <strong>Service ID</strong><br>
-            3️⃣ Create a template → <strong>To Email = parent's real email</strong>, Subject = <code style="background:#fff;padding:1px 5px;border-radius:4px">{{subject}}</code>, Body = <code style="background:#fff;padding:1px 5px;border-radius:4px">{{message}}</code> → copy <strong>Template ID</strong><br>
+            3️⃣ Create a template → <strong>To Email = <code style="background:#fff;padding:1px 4px;border-radius:3px">{{to_name}}</code></strong>, Subject = <code style="background:#fff;padding:1px 5px;border-radius:4px">{{subject}}</code>, Body = <code style="background:#fff;padding:1px 5px;border-radius:4px">{{message}}</code> → copy <strong>Template ID</strong><br>
             4️⃣ Account → General → copy <strong>Public Key</strong>
           </div>
           <label style="display:flex;align-items:center;gap:.5rem;font-size:.88rem;margin-bottom:.7rem;cursor:pointer">
@@ -961,10 +961,11 @@ textarea.form-input{resize:vertical;min-height:80px}
           </label>
           <div id="pnEmailFields" style="display:none">
             <div class="form-row">
+              <div><label class="form-label">Parent Email</label><input class="form-input" type="email" id="pnParentEmail" placeholder="parent@gmail.com"/></div>
               <div><label class="form-label">EmailJS Service ID</label><input class="form-input" id="pnEjServiceId" placeholder="service_xxxxxxx"/></div>
-              <div><label class="form-label">EmailJS Template ID</label><input class="form-input" id="pnEjTemplateId" placeholder="template_xxxxxxx"/></div>
             </div>
             <div class="form-row">
+              <div><label class="form-label">EmailJS Template ID</label><input class="form-input" id="pnEjTemplateId" placeholder="template_xxxxxxx"/></div>
               <div><label class="form-label">EmailJS Public Key</label><input class="form-input" id="pnEjPublicKey" placeholder="xxxxxxxxxxxxxxxxxxxx"/></div>
             </div>
           </div>
@@ -3010,13 +3011,12 @@ function pnBuildReport(log) {
 }
 
 // ── Send: Email via EmailJS REST API ─────────────────────────
-// NOTE: EmailJS free plan requires the recipient to be a STATIC
-// address set directly in the template's "To Email" field.
-// We only pass subject + message as template params.
-async function pnSendEmail(msg, subjectLine) {
+// Template params match exactly: to_name = recipient email, message = body
+async function pnSendEmail(msg) {
   const s = pnLoadSettings();
   if (!s.emailEnabled)                                   return { ok: false, reason: 'Email not enabled' };
   if (!s.ejServiceId || !s.ejTemplateId || !s.ejPublicKey) return { ok: false, reason: 'EmailJS credentials missing — check Service ID, Template ID and Public Key' };
+  if (!s.parentEmail)                                    return { ok: false, reason: 'Parent email missing — fill in the Parent Email field and save' };
   try {
     const resp = await fetch('https://api.emailjs.com/api/v1.0/email/send', {
       method:  'POST',
@@ -3026,7 +3026,7 @@ async function pnSendEmail(msg, subjectLine) {
         template_id: s.ejTemplateId.trim(),
         user_id:     s.ejPublicKey.trim(),
         template_params: {
-          subject: subjectLine || 'SainikPrep Daily Report',
+          to_name: s.parentEmail.trim(),
           message: msg
         }
       })
@@ -3076,7 +3076,7 @@ async function pnSendNow(dateStr) {
   let results = [];
 
   if (s.emailEnabled) {
-    const r = await pnSendEmail(msg, subj);
+    const r = await pnSendEmail(msg);
     results.push(`📧 Email: ${r.ok ? '✅ Sent via EmailJS' : '❌ ' + r.reason}`);
   }
   if (s.waEnabled) {
@@ -3112,7 +3112,7 @@ async function pnSendTest() {
   let results = [];
 
   if (s.emailEnabled) {
-    const r = await pnSendEmail(testMsg, subj);
+    const r = await pnSendEmail(testMsg);
     results.push(`📧 Email: ${r.ok ? '✅ Test sent via EmailJS' : '❌ ' + r.reason}`);
   }
   if (s.waEnabled) {
