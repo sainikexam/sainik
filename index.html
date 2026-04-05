@@ -2602,8 +2602,9 @@ function retryDailyQuiz() {
 async function fillDailyMaterial(dateStr) {
   const el = document.getElementById('bpDailyMaterial');
   if (!el) return;
-  if (!allQuestions.length) await loadQuestions();
-  await loadNotes(false);
+  el.innerHTML = '<div class="lb-empty">⏳ Loading…</div>';
+  await loadQuestions();        // always fresh — ensures count matches Admin Daily
+  await loadNotes(true);        // force-refresh notes
 
   const dqs = allQuestions.filter(q => q.date === dateStr);
   const dns = allNotes.filter(n => n.date === dateStr);
@@ -2805,8 +2806,8 @@ async function renderDailyPanel() {
   if (!el) return;
   if (!dateStr) { el.innerHTML = '<div class="lb-empty">Select a date first.</div>'; return; }
   el.innerHTML = '<div class="lb-empty">⏳ Loading…</div>';
-  if (!allQuestions.length) await loadQuestions();
-  await loadNotes(false);
+  await loadQuestions();          // always fresh — ensures count matches Battle Plan
+  await loadNotes(true);          // force-refresh notes too
 
   const dqs = allQuestions.filter(q => q.date === dateStr);
   const dns = allNotes.filter(n => n.date === dateStr);
@@ -2815,7 +2816,50 @@ async function renderDailyPanel() {
   const nStatus = dns.length > 0 ? `✅ ${dns.length} note${dns.length>1?'s':''}` : '❌ None';
   const readyAll = dqs.length >= 20 && dns.length > 0;
 
-  el.innerHTML = `
+  // ── Battle Plan context for this date ──────────────────────
+  let bpHtml = '';
+  try {
+    const plan = getDayPlan(new Date(dateStr + 'T00:00:00'));
+    if (plan) {
+      const dow = new Date(dateStr + 'T00:00:00').toLocaleDateString('en-IN',{weekday:'long'});
+      // Subject coverage check — uploaded questions vs scheduled subjects
+      const scheduledSubjects = [plan.mainSubject, plan.secSubject].filter(Boolean);
+      const uploadedSubjects  = [...new Set(dqs.map(q => q.subject))];
+      const matchMain = uploadedSubjects.includes(plan.mainSubject);
+      const matchSec  = uploadedSubjects.includes(plan.secSubject);
+      const revItems  = (plan.revisionTopics||[]).map(r =>
+        `<span style="background:rgba(255,255,255,.7);border-radius:6px;padding:2px 8px;font-size:.75rem">🔄 ${r.subject}: ${r.topic}</span>`
+      ).join(' ');
+
+      bpHtml = `
+      <div style="background:linear-gradient(135deg,#e8f5e9,#f1f8e9);border-radius:12px;padding:.9rem 1.1rem;margin-bottom:1rem;border-left:4px solid #43a047">
+        <div style="font-family:'Rajdhani',sans-serif;font-size:.95rem;font-weight:700;color:#2e7d32;margin-bottom:.5rem">
+          🗓️ Battle Plan for ${dow}, ${dateStr} — ${plan.phase}
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:.5rem">
+          <div style="background:rgba(255,255,255,.8);border-radius:8px;padding:.4rem .8rem;font-size:.82rem">
+            <span style="font-size:.7rem;text-transform:uppercase;color:#555;display:block">Main Subject</span>
+            <strong style="color:#1b5e20">${plan.mainSubject}</strong>
+            <span style="color:#444"> — ${plan.mainTopic}</span>
+            <span style="margin-left:.4rem">${matchMain ? '✅' : '⚠️ no upload'}</span>
+          </div>
+          <div style="background:rgba(255,255,255,.8);border-radius:8px;padding:.4rem .8rem;font-size:.82rem">
+            <span style="font-size:.7rem;text-transform:uppercase;color:#555;display:block">Second Subject</span>
+            <strong style="color:#1b5e20">${plan.secSubject}</strong>
+            <span style="color:#444"> — ${plan.secTopic}</span>
+            <span style="margin-left:.4rem">${matchSec ? '✅' : '⚠️ no upload'}</span>
+          </div>
+        </div>
+        ${revItems ? `<div style="font-size:.72rem;color:#555;margin-bottom:.3rem">Revision: ${revItems}</div>` : ''}
+        <div style="font-size:.75rem;color:#555;margin-top:.3rem">
+          Uploaded subjects: ${uploadedSubjects.length ? uploadedSubjects.map(s=>`<strong>${s}</strong>`).join(', ') : '<em>none yet</em>'}
+          ${(!matchMain && plan.mainSubject) ? `<span style="color:#c62828;margin-left:.5rem">⚠️ Missing questions for <strong>${plan.mainSubject}</strong></span>` : ''}
+        </div>
+      </div>`;
+    }
+  } catch(e) {}
+
+  el.innerHTML = bpHtml + `
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.7rem;margin-bottom:1rem">
       <div style="background:var(--cream);border-radius:12px;padding:.8rem;text-align:center">
         <div style="font-family:'Rajdhani',sans-serif;font-size:1.6rem;font-weight:700;color:var(--olive)">${dqs.length}</div>
@@ -2833,6 +2877,7 @@ async function renderDailyPanel() {
     <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1rem">
       <button class="btn-sm" onclick="quickAddForDate('${dateStr}')">➕ Add Question for ${dateStr}</button>
       <button class="btn-sm" onclick="quickAddNoteForDate('${dateStr}')" style="background:var(--blue)">✏️ Add Note for ${dateStr}</button>
+      <button class="btn-sm" onclick="adminTab('aiprompt');setTimeout(()=>{document.getElementById('aiPromptDate').value='${dateStr}';generateAIPrompt();},200)" style="background:#5c6bc0;color:#fff">🤖 Generate AI Questions</button>
     </div>
     ${dqs.length ? `
     <div style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:1rem;color:var(--olive-dark);margin:.5rem 0 .4rem">📝 Questions (${dqs.length})</div>
