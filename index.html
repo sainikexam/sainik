@@ -995,8 +995,10 @@ textarea.form-input{resize:vertical;min-height:80px}
           <button class="btn" onclick="pnSaveSettingsFromForm()" style="padding:.5rem 1.1rem">💾 Save Settings</button>
           <button class="btn" onclick="pnSendNow()" style="padding:.5rem 1.1rem;background:var(--olive-light)">📤 Send Today's Report Now</button>
           <button class="btn" onclick="pnSendTest()" style="padding:.5rem 1.1rem;background:#f39c12;color:#fff">🧪 Send Test Message</button>
+          <button class="btn" onclick="pnCheckCredentials()" style="padding:.5rem 1.1rem;background:#8e44ad;color:#fff">🔍 Check Saved Credentials</button>
         </div>
         <div id="pnSendStatus" style="margin-top:.6rem;font-size:.83rem;display:none"></div>
+        <div id="pnCredDiag" style="display:none;margin-top:.6rem;background:var(--cream);border-radius:10px;padding:.8rem 1rem;font-family:monospace;font-size:.78rem;white-space:pre-wrap;line-height:1.8;color:#334;border-left:3px solid #8e44ad"></div>
 
         <!-- Today preview -->
         <div style="margin-top:1.2rem;border-top:1px solid var(--sand);padding-top:.9rem">
@@ -2902,6 +2904,36 @@ function pnSaveSettingsFromForm() {
   pnSaveSettings(s);
   pnRestartScheduler();
   showToast('✅ Parent notification settings saved!');
+}
+
+function pnCheckCredentials() {
+  const s = pnLoadSettings();
+  const mask = v => v ? v.slice(0,4) + '…' + v.slice(-3) : '❌ EMPTY';
+  const bool = v => v ? '✅ Yes' : '❌ No';
+  let diag = '── Saved EmailJS Credentials ──────────────\n';
+  diag += `Email Enabled : ${bool(s.emailEnabled)}\n`;
+  diag += `Parent Email  : ${s.parentEmail || '❌ EMPTY'}\n`;
+  diag += `Service ID    : ${s.ejServiceId  || '❌ EMPTY'}\n`;
+  diag += `Template ID   : ${s.ejTemplateId || '❌ EMPTY'}\n`;
+  diag += `Public Key    : ${mask(s.ejPublicKey)}\n`;
+  diag += '\n── What to verify ──────────────────────────\n';
+  if (!s.ejServiceId)  diag += '⚠️  Service ID is blank — copy from EmailJS → Email Services\n';
+  if (!s.ejTemplateId) diag += '⚠️  Template ID is blank — copy from EmailJS → Email Templates\n';
+  if (!s.ejPublicKey)  diag += '⚠️  Public Key is blank — copy from EmailJS → Account → API Keys\n';
+  if (!s.parentEmail)  diag += '⚠️  Parent email is blank\n';
+  if (s.ejServiceId && !s.ejServiceId.startsWith('service_'))  diag += '⚠️  Service ID should start with "service_" — check you copied the right value\n';
+  if (s.ejTemplateId && !s.ejTemplateId.startsWith('template_')) diag += '⚠️  Template ID should start with "template_" — check you copied the right value\n';
+  if (s.ejServiceId && s.ejServiceId.startsWith('service_') &&
+      s.ejTemplateId && s.ejTemplateId.startsWith('template_') &&
+      s.ejPublicKey && s.parentEmail) {
+    diag += '✅ All fields look correctly filled.\n';
+    diag += '   If you still get "template not found":\n';
+    diag += '   → The Template ID and Public Key must be from the SAME EmailJS account.\n';
+    diag += '   → Open: https://dashboard.emailjs.com/admin/templates\n';
+    diag += '   → Confirm the template exists and is NOT deleted.\n';
+  }
+  const el = document.getElementById('pnCredDiag');
+  if (el) { el.style.display = ''; el.textContent = diag; }
 }
 
 function pnToggleEmailFields() {
