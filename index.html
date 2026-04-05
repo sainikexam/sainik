@@ -18,32 +18,47 @@ import{getFirestore,doc,setDoc,getDoc,collection,addDoc,getDocs,deleteDoc,update
 const firebaseConfig={apiKey:"AIzaSyDAEMXwHWghLyBrzzrz9nn6hx6_EUfK-20",authDomain:"aissee-quiz.firebaseapp.com",projectId:"aissee-quiz",storageBucket:"aissee-quiz.firebasestorage.app",messagingSenderId:"1092597007967",appId:"1:1092597007967:web:93958b401b31167f4fbdea"};
 const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getFirestore(app);
 window._FB={auth,db,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut,onAuthStateChanged,doc,setDoc,getDoc,collection,addDoc,getDocs,deleteDoc,updateDoc,query,orderBy,arrayUnion,where};
+
+// Wait for the page scripts to be ready before acting on auth state changes
+function _ready(fn){if(typeof hideLoader==='function'){fn()}else{setTimeout(()=>_ready(fn),50)}}
+
 onAuthStateChanged(auth,async u=>{
   if(u){
+    // Try Firestore, but NEVER block login if it fails
+    let userData=null;
     try{
       const s=await getDoc(doc(db,'users',u.uid));
       if(s.exists()){
-        window.currentUser={uid:u.uid,email:u.email,...s.data()};
+        userData=s.data();
       } else {
-        // Auth succeeded but Firestore doc missing — create it now
-        const fallback={name:u.displayName||u.email.split('@')[0],email:u.email,isAdmin:false,scores:[],createdAt:Date.now()};
-        await setDoc(doc(db,'users',u.uid),fallback);
-        window.currentUser={uid:u.uid,email:u.email,...fallback};
+        // Doc missing — try to create it (may fail if rules not set, that's OK)
+        const pendingName=window._pendingName||u.displayName||u.email.split('@')[0];
+        window._pendingName=null;
+        const fallback={name:pendingName,email:u.email,isAdmin:false,scores:[],createdAt:Date.now()};
+        try{await setDoc(doc(db,'users',u.uid),fallback);}catch(we){console.warn('Could not write user profile (check Firestore Rules):',we.code,we.message);}
+        userData=fallback;
       }
-      document.getElementById('adminNavBtn').style.display=window.currentUser.isAdmin?'':'none';
-      document.getElementById('userInfo').textContent=window.currentUser.name;
-      hideLoader();showPage('home');loadBookmarks();
     }catch(err){
-      console.error('Firestore error:',err);
-      hideLoader();
-      // Show a helpful message instead of freezing
-      document.getElementById('page-login').classList.add('active');
-      const errEl=document.getElementById('loginErr');
-      errEl.textContent='Database error: '+err.message+'. Check Firestore Rules in Firebase Console.';
-      errEl.classList.add('show');
+      // Firestore blocked (rules not configured) — log warning, still allow login
+      console.warn('Firestore read blocked. Login will work but profile features limited. Fix Firestore Rules:',err.code,err.message);
+      const pendingName=window._pendingName||u.displayName||u.email.split('@')[0];
+      window._pendingName=null;
+      userData={name:pendingName,email:u.email,isAdmin:false,scores:[]};
     }
+    window.currentUser={uid:u.uid,email:u.email,...userData};
+    // Wait for page functions to be ready (they're in a regular script tag)
+    _ready(()=>{
+      const adminBtn=document.getElementById('adminNavBtn');
+      if(adminBtn)adminBtn.style.display=window.currentUser.isAdmin?'':'none';
+      const uiEl=document.getElementById('userInfo');
+      if(uiEl)uiEl.textContent=window.currentUser.name;
+      hideLoader();
+      showPage('home');
+      if(typeof loadBookmarks==='function')loadBookmarks();
+    });
   } else {
-    window.currentUser=null;hideLoader();showPage('login');
+    window.currentUser=null;
+    _ready(()=>{hideLoader();showPage('login');});
   }
 });
 </script>
@@ -1010,17 +1025,19 @@ async function doRegister(){
   let cred;
   try{
     cred=await window._FB.createUserWithEmailAndPassword(window._FB.auth,e,p);
+    // Store displayName so onAuthStateChanged can use it if Firestore write fails
+    window._pendingName=n;
   }catch(ex){
     err.textContent=friendlyErr(ex.code);err.classList.add('show');btn.disabled=false;btn.textContent='Create Account →';return;
   }
+  // Try writing Firestore profile — failure here is non-fatal (onAuthStateChanged will create fallback)
   try{
     await window._FB.setDoc(window._FB.doc(window._FB.db,'users',cred.user.uid),{name:n,email:e,isAdmin:false,scores:[],createdAt:Date.now()});
   }catch(ex){
-    // Auth created but Firestore write failed — show exact error
-    err.textContent='⚠️ Account created but profile save failed. Firestore Rules may be blocking writes. Error: '+ex.message;
-    err.classList.add('show');
-    btn.disabled=false;btn.textContent='Create Account →';
+    console.warn('Profile doc write failed (check Firestore Rules):',ex.code,ex.message);
+    // Auth succeeded — onAuthStateChanged will still log the user in with fallback data
   }
+  btn.disabled=false;btn.textContent='Create Account →';
 }
 function friendlyErr(c){const m={'auth/invalid-email':'Invalid email.','auth/user-not-found':'No account found.','auth/wrong-password':'Wrong password.','auth/email-already-in-use':'Email already registered.','auth/weak-password':'Password must be 6+ characters.','auth/invalid-credential':'Invalid email or password.','auth/too-many-requests':'Too many attempts.'};return m[c]||'Something went wrong.'}
 
