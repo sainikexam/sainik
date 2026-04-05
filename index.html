@@ -305,6 +305,146 @@ textarea.form-input{resize:vertical;min-height:80px}
   .mode-tab{font-size:.9rem;padding:10px 6px}
 }
 ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:var(--cream)}::-webkit-scrollbar-thumb{background:var(--olive-light);border-radius:3px}
+
+/* ══════════════════════════════════════════
+   DAILY BATTLE PLAN STYLES
+══════════════════════════════════════════ */
+/* Battle Plan wrapper */
+.bp-wrap{max-width:1100px;margin:0 auto;padding:1.2rem}
+/* Top bar */
+.bp-topbar{display:flex;align-items:center;justify-content:space-between;gap:.6rem;margin-bottom:1.2rem;flex-wrap:wrap}
+.bp-title{font-family:'Rajdhani',sans-serif;font-size:1.5rem;font-weight:700;color:var(--olive-dark)}
+.bp-meta{font-size:.78rem;color:var(--text-muted)}
+.bp-countdown-row{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap}
+.bp-chip{padding:4px 14px;border-radius:20px;font-family:'Rajdhani',sans-serif;font-size:.88rem;font-weight:700}
+.bp-chip-red{background:#fdecea;color:var(--red)}
+.bp-chip-blue{background:#e8f4fb;color:var(--blue)}
+.bp-chip-green{background:#eafaf1;color:#1e8449}
+/* Nav row */
+.bp-nav{display:flex;gap:.5rem;align-items:center;margin-bottom:1.2rem;flex-wrap:wrap}
+.bp-nav-btn{padding:8px 20px;background:var(--white);border:2px solid var(--sand);border-radius:10px;font-family:'Rajdhani',sans-serif;font-size:.95rem;font-weight:700;cursor:pointer;color:var(--text);transition:all .2s;white-space:nowrap}
+.bp-nav-btn:hover{border-color:var(--olive-light);color:var(--olive)}
+.bp-nav-btn.active{background:var(--olive);color:var(--white);border-color:var(--olive)}
+.bp-date-label{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:1.1rem;color:var(--olive-dark);min-width:180px;text-align:center}
+/* TODAY card */
+.bp-today-card{background:var(--white);border-radius:18px;padding:1.5rem;box-shadow:var(--shadow-lg);margin-bottom:1.2rem;border-top:4px solid var(--olive)}
+.bp-section-head{display:flex;align-items:center;gap:.5rem;font-family:'Rajdhani',sans-serif;font-size:1.1rem;font-weight:700;color:var(--olive-dark);margin-bottom:.8rem}
+/* Topics */
+.bp-topic-row{display:flex;align-items:flex-start;gap:.8rem;padding:.7rem;border-radius:12px;background:var(--cream);margin-bottom:.5rem;cursor:pointer;transition:all .2s}
+.bp-topic-row:hover{background:var(--sand)}
+.bp-topic-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:5px}
+.bp-topic-subj{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);margin-bottom:2px}
+.bp-topic-name{font-weight:700;font-size:.92rem}
+.bp-topic-hint{font-size:.78rem;color:var(--text-muted);margin-top:2px}
+.bp-topic-done{background:rgba(39,174,96,.08);border:1px solid rgba(39,174,96,.2)}
+.bp-topic-done .bp-topic-name{text-decoration:line-through;color:var(--text-muted)}
+.bp-tick{margin-left:auto;font-size:1.1rem}
+/* Timetable */
+.bp-timetable{display:flex;flex-direction:column;gap:.3rem}
+.bp-tt-row{display:flex;gap:.8rem;align-items:flex-start;padding:.6rem .8rem;border-radius:10px;background:var(--cream)}
+.bp-tt-time{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.85rem;color:var(--olive);min-width:90px;flex-shrink:0}
+.bp-tt-act{font-size:.88rem;flex:1}
+/* Parent role */
+.bp-parent-box{background:linear-gradient(135deg,#fef9e7,#fff3cd);border-radius:14px;padding:1.1rem 1.3rem;border-left:4px solid var(--khaki);margin-top:.8rem}
+.bp-parent-head{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:1rem;color:#856404;margin-bottom:.5rem}
+.bp-parent-list{font-size:.85rem;color:#5a4108;line-height:1.8}
+/* WEEK VIEW */
+.bp-week-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:.5rem}
+.bp-week-day{background:var(--white);border-radius:12px;padding:.7rem;box-shadow:var(--shadow);cursor:pointer;transition:all .2s;border-top:3px solid var(--sand);min-height:80px}
+.bp-week-day:hover{transform:translateY(-2px);box-shadow:var(--shadow-lg);border-top-color:var(--olive-light)}
+.bp-week-day.today-day{border-top-color:var(--olive)}
+.bp-week-day.past-day{opacity:.6}
+.bp-week-day.done-day{border-top-color:var(--green)}
+.bp-week-day-num{font-family:'Rajdhani',sans-serif;font-size:1.1rem;font-weight:700;color:var(--olive)}
+.bp-week-day-name{font-size:.7rem;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted)}
+.bp-week-subjects{margin-top:.3rem;display:flex;flex-direction:column;gap:2px}
+.bp-week-subj-dot{width:6px;height:6px;border-radius:50%;display:inline-block;margin-right:3px}
+.bp-week-item{font-size:.68rem;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* Phase plan */
+.bp-phase-card{background:var(--white);border-radius:16px;padding:1.2rem;box-shadow:var(--shadow);margin-bottom:.8rem;border-left:4px solid var(--olive-light)}
+.bp-phase-head{font-family:'Rajdhani',sans-serif;font-size:1.1rem;font-weight:700;color:var(--olive-dark);margin-bottom:.3rem}
+.bp-phase-months{font-size:.8rem;color:var(--text-muted);margin-bottom:.6rem}
+.bp-phase-subjects{display:flex;flex-wrap:wrap;gap:.3rem}
+.bp-phase-tag{padding:3px 10px;border-radius:20px;font-size:.72rem;font-weight:700;background:var(--cream);color:var(--olive)}
+/* Full Syllabus */
+.bp-syllabus-wrap{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:.8rem;margin-top:.8rem}
+.bp-syllabus-card{background:var(--white);border-radius:14px;padding:1rem 1.2rem;box-shadow:var(--shadow);border-top:3px solid var(--khaki)}
+.bp-syllabus-subj{font-family:'Rajdhani',sans-serif;font-size:1rem;font-weight:700;color:var(--olive-dark);margin-bottom:.5rem}
+.bp-syllabus-list{list-style:none;padding:0}
+.bp-syllabus-list li{font-size:.82rem;color:var(--text);padding:3px 0;border-bottom:1px dashed var(--sand)}
+.bp-syllabus-list li:last-child{border-bottom:none}
+/* Strategy */
+.bp-strategy-card{background:var(--white);border-radius:16px;padding:1.3rem;box-shadow:var(--shadow);margin-bottom:.8rem}
+.bp-strategy-head{font-family:'Rajdhani',sans-serif;font-size:1.05rem;font-weight:700;color:var(--olive-dark);margin-bottom:.6rem}
+.bp-strategy-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:.5rem}
+.bp-strategy-item{background:var(--cream);border-radius:10px;padding:.6rem .8rem;font-size:.83rem;display:flex;align-items:flex-start;gap:.5rem}
+/* Error Log */
+.bp-errorlog-wrap{max-width:900px;margin:0 auto;padding:1.2rem}
+.bp-error-filters{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1rem}
+.bp-error-filter-btn{padding:6px 14px;border:2px solid var(--sand);background:var(--white);border-radius:20px;font-size:.78rem;font-weight:700;cursor:pointer;transition:all .2s;font-family:'Nunito',sans-serif}
+.bp-error-filter-btn:hover{border-color:var(--olive-light)}.bp-error-filter-btn.active{background:var(--olive);color:var(--white);border-color:var(--olive)}
+.bp-error-card{background:var(--white);border-radius:14px;padding:1rem 1.2rem;box-shadow:var(--shadow);margin-bottom:.7rem;border-left:4px solid var(--red);position:relative}
+.bp-error-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:.4rem;gap:.5rem;flex-wrap:wrap}
+.bp-error-meta{display:flex;gap:.3rem;flex-wrap:wrap}
+.bp-error-tag{font-size:.68rem;font-weight:700;padding:2px 8px;border-radius:10px}
+.bp-error-q{font-weight:700;font-size:.9rem;margin:.3rem 0;line-height:1.5}
+.bp-error-ans{font-size:.82rem;color:var(--green);font-weight:700}
+.bp-error-your{font-size:.78rem;color:var(--red)}
+.bp-error-exp{font-size:.78rem;color:var(--olive);margin-top:.3rem;padding-top:.3rem;border-top:1px dashed var(--sand)}
+.bp-error-date{font-size:.7rem;color:var(--text-muted);white-space:nowrap}
+.bp-error-mastered{background:rgba(39,174,96,.07);border-left-color:var(--green)}
+.bp-error-mastered .bp-error-q{text-decoration:line-through;color:var(--text-muted)}
+.bp-master-btn{padding:4px 12px;border-radius:20px;font-size:.75rem;font-weight:700;border:none;cursor:pointer;transition:all .2s}
+.bp-master-btn-on{background:rgba(39,174,96,.15);color:#1e8449}.bp-master-btn-on:hover{background:#27ae60;color:var(--white)}
+.bp-master-btn-off{background:rgba(192,57,43,.1);color:var(--red)}.bp-master-btn-off:hover{background:var(--red);color:var(--white)}
+.bp-error-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:.8rem;margin-bottom:1.2rem}
+.bp-error-stat{background:var(--white);border-radius:12px;padding:.8rem;text-align:center;box-shadow:var(--shadow)}
+.bp-error-stat-val{font-family:'Rajdhani',sans-serif;font-size:1.6rem;font-weight:700;color:var(--olive)}
+.bp-error-stat-lbl{font-size:.7rem;color:var(--text-muted);text-transform:uppercase}
+/* Progress tracker */
+.bp-progress-bar{height:8px;background:var(--sand);border-radius:4px;overflow:hidden;margin-top:.3rem}
+.bp-progress-fill{height:100%;background:linear-gradient(90deg,var(--olive-light),var(--khaki));border-radius:4px;transition:width .5s ease}
+.bp-subject-progress{margin-bottom:.6rem}
+.bp-sp-label{display:flex;justify-content:space-between;font-size:.8rem;margin-bottom:3px}
+.bp-sp-name{font-weight:700;color:var(--text)}
+.bp-sp-pct{color:var(--olive);font-weight:700}
+/* ── Pass / Fail Banner ── */
+.pf-banner{border-radius:16px;padding:1.1rem 1.5rem;text-align:center;margin-bottom:1.2rem;border:2px solid transparent}
+.pf-banner.pf-outstanding{background:linear-gradient(135deg,#eafaf1,#d5f5e3);border-color:#27ae60}
+.pf-banner.pf-target{background:linear-gradient(135deg,#eafaf1,#d5f5e3);border-color:var(--olive)}
+.pf-banner.pf-pass{background:linear-gradient(135deg,#fef9e7,#fff3cd);border-color:#d4a006}
+.pf-banner.pf-fail{background:linear-gradient(135deg,#fdecea,#f9d2cf);border-color:var(--red)}
+.pf-badge{font-family:'Rajdhani',sans-serif;font-size:1.6rem;font-weight:700;letter-spacing:1px}
+.pf-sub{font-size:.83rem;margin-top:.3rem;opacity:.85}
+.pf-daily-tag{display:inline-block;padding:2px 10px;border-radius:20px;font-size:.72rem;font-weight:700;background:rgba(0,0,0,.08);margin-top:.4rem}
+
+/* ── Daily Material Card in Today view ── */
+.dm-wrap{background:var(--white);border-radius:18px;padding:1.4rem;box-shadow:var(--shadow-lg);margin-bottom:1.2rem;border-top:4px solid var(--blue)}
+.dm-status-row{display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;margin-bottom:.8rem}
+.dm-status-chip{padding:4px 12px;border-radius:20px;font-size:.78rem;font-weight:700}
+.dm-note-box{background:var(--cream);border-radius:12px;padding:.9rem 1.1rem;margin-top:.6rem;font-size:.88rem;line-height:1.7;max-height:220px;overflow-y:auto;border-left:4px solid var(--blue)}
+.dm-quiz-btn{display:flex;align-items:center;justify-content:space-between;background:linear-gradient(135deg,var(--olive-dark),var(--olive-light));color:var(--white);border:none;border-radius:14px;padding:1rem 1.3rem;cursor:pointer;width:100%;margin-top:.7rem;font-family:'Nunito',sans-serif;transition:all .2s}
+.dm-quiz-btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(74,92,47,.4)}
+.dm-quiz-btn-left{text-align:left}
+.dm-quiz-btn-title{font-family:'Rajdhani',sans-serif;font-size:1.1rem;font-weight:700}
+.dm-quiz-btn-sub{font-size:.78rem;opacity:.85;margin-top:2px}
+.dm-quiz-btn-right{font-size:1.8rem}
+.dm-no-material{background:var(--sand);border-radius:12px;padding:1rem 1.3rem;text-align:center;color:var(--text-muted);font-size:.85rem}
+
+/* ── Progress Chart ── */
+.bp-chart-wrap{background:var(--white);border-radius:14px;padding:.9rem;box-shadow:var(--shadow);margin-bottom:1rem;overflow-x:auto}
+.bp-chart-legend{display:flex;gap:.8rem;justify-content:center;margin-top:.4rem;flex-wrap:wrap;font-size:.73rem;color:var(--text-muted)}
+.bp-chart-legend span{display:flex;align-items:center;gap:4px}
+.bp-chart-swatch{width:10px;height:10px;border-radius:2px;display:inline-block}
+.bp-streak-row{display:grid;grid-template-columns:repeat(3,1fr);gap:.8rem;margin-bottom:1rem}
+.bp-streak-box{background:var(--white);border-radius:12px;padding:.8rem;text-align:center;box-shadow:var(--shadow)}
+.bp-streak-val{font-family:'Rajdhani',sans-serif;font-size:2rem;font-weight:700;color:var(--olive)}
+.bp-streak-lbl{font-size:.7rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:.3px}
+
+@media(max-width:600px){
+  .bp-week-grid{grid-template-columns:repeat(4,1fr)}
+  .bp-topbar{gap:.4rem}
+}
 </style>
 </head>
 <body>
@@ -320,6 +460,8 @@ textarea.form-input{resize:vertical;min-height:80px}
   <div class="header-nav">
     <span class="user-chip" id="userInfo"></span>
     <button class="nav-btn" onclick="showPage('home')">🏠 Home</button>
+    <button class="nav-btn" onclick="showPage('battleplan')">📅 Plan</button>
+    <button class="nav-btn" onclick="showPage('errorlog')">📕 Errors</button>
     <button class="nav-btn" onclick="showPage('search')">🔍</button>
     <button class="nav-btn" onclick="showPage('history')">📊</button>
     <button class="nav-btn" onclick="showPage('bookmarks')">🔖</button>
@@ -429,9 +571,11 @@ textarea.form-input{resize:vertical;min-height:80px}
         <div class="r-stat"><div class="r-stat-val red" id="rWrong">0</div><div class="r-stat-lbl">Wrong</div></div>
         <div class="r-stat"><div class="r-stat-val orange" id="rTimeout">0</div><div class="r-stat-lbl">Timed Out</div></div>
       </div>
+      <div id="resultPassFail"></div>
       <div class="result-actions">
         <button class="btn-start" onclick="showPage('home')">← Home</button>
         <button class="btn-start" onclick="startQuiz()">🔄 Retry</button>
+        <button class="btn-start" id="retryDailyBtn" style="display:none" onclick="retryDailyQuiz()">🔄 Retry Daily</button>
       </div>
       <div class="review-section" id="reviewSection"></div>
     </div>
@@ -500,6 +644,7 @@ textarea.form-input{resize:vertical;min-height:80px}
       <button class="admin-tab" onclick="adminTab('listq')">📋 Q List</button>
       <button class="admin-tab" onclick="adminTab('addn')">✏️ Note</button>
       <button class="admin-tab" onclick="adminTab('listn')">📑 Notes</button>
+      <button class="admin-tab" onclick="adminTab('daily')">📅 Daily</button>
       <button class="admin-tab" onclick="adminTab('users')">👤 Users</button>
     </div>
 
@@ -528,6 +673,7 @@ textarea.form-input{resize:vertical;min-height:80px}
           <div class="radio-group"><label><input type="radio" name="correctOpt" value="0" checked/> A</label><label><input type="radio" name="correctOpt" value="1"/> B</label><label><input type="radio" name="correctOpt" value="2"/> C</label><label><input type="radio" name="correctOpt" value="3"/> D</label></div>
         </div>
         <div class="form-row one"><label class="form-label">Explanation (optional)</label><textarea class="form-input" id="aExplanation" rows="2" placeholder="Why is this the correct answer?"></textarea></div>
+        <div class="form-row one"><label class="form-label">📅 Assign to Date <span style="color:var(--text-muted);text-transform:none;letter-spacing:0;font-weight:400">(optional — links this question to a Daily Quiz)</span></label><input class="form-input" id="aDate" type="date" style="max-width:200px"/></div>
         <button class="btn-sm" id="saveQBtn" onclick="saveQuestion()">💾 Save Question</button>
       </div>
     </div>
@@ -629,6 +775,7 @@ textarea.form-input{resize:vertical;min-height:80px}
         </div>
         <div class="form-row one"><label class="form-label">Note Title</label><input class="form-input" id="nTitle" placeholder="e.g. Understanding Linear Equations"/></div>
         <div class="form-row one"><label class="form-label">Order</label><input class="form-input" id="nOrder" type="number" value="1" min="1" style="max-width:100px"/></div>
+        <div class="form-row one"><label class="form-label">📅 Assign to Date <span style="color:var(--text-muted);text-transform:none;letter-spacing:0;font-weight:400">(optional — shows this note in Battle Plan Today view)</span></label><input class="form-input" id="nDate" type="date" style="max-width:200px"/></div>
         <div class="editor-wrap">
           <div class="editor-pane">
             <div class="editor-pane-label">✏️ Markdown
@@ -678,6 +825,23 @@ textarea.form-input{resize:vertical;min-height:80px}
       </div>
     </div>
 
+    <!-- DAILY MATERIAL MANAGER -->
+    <div class="admin-panel" id="apDaily">
+      <div class="admin-form">
+        <h3>📅 Daily Material Manager</h3>
+        <div style="background:var(--sand);border-radius:12px;padding:.8rem 1rem;margin-bottom:1rem;font-size:.83rem;border-left:4px solid var(--olive-light);line-height:1.7">
+          <strong>How it works:</strong> Assign questions &amp; notes to a specific date. On that day, the student sees a <strong>"Today's Quiz"</strong> button with those exact questions + study note inline in the Battle Plan.<br>
+          Aim for <strong>20–30 questions per day</strong> for a complete daily quiz.
+        </div>
+        <div style="display:flex;align-items:flex-end;gap:.8rem;margin-bottom:1.2rem;flex-wrap:wrap">
+          <div><label class="form-label">Select Date</label><input class="form-input" id="dailyDate" type="date" style="max-width:190px" onchange="renderDailyPanel()"/></div>
+          <button class="btn-sm" onclick="renderDailyPanel()">🔍 Load Day</button>
+          <button class="btn-sm" onclick="setDailyDateToday()" style="background:var(--olive-light)">📅 Today</button>
+        </div>
+        <div id="dailyPanelContent"><div class="lb-empty">Select a date above to view or manage that day's material.</div></div>
+      </div>
+    </div>
+
     <!-- USERS -->
     <div class="admin-panel" id="apUsers">
       <div class="admin-form" style="padding:1rem">
@@ -685,6 +849,74 @@ textarea.form-input{resize:vertical;min-height:80px}
         <table class="q-list-table"><thead><tr><th>Name</th><th>Email</th><th>Tests</th><th>Avg</th><th>Best</th></tr></thead><tbody id="usersBody"></tbody></table>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- ═══ DAILY BATTLE PLAN ═══ -->
+<div class="page" id="page-battleplan">
+  <div class="bp-wrap">
+    <!-- Top bar -->
+    <div class="bp-topbar">
+      <div>
+        <div class="bp-title">🎖️ AISSEE 2027 — Daily Battle Plan</div>
+        <div class="bp-meta">Age 10 · Class 6 Entry · Apr 2026 → Jan 2027</div>
+      </div>
+      <div class="bp-countdown-row">
+        <span class="bp-chip bp-chip-red" id="bpDaysLeft">– days left</span>
+        <span class="bp-chip bp-chip-blue" id="bpMonthsLeft">9 Months</span>
+        <span class="bp-chip bp-chip-green">Jan 2027</span>
+      </div>
+    </div>
+    <!-- Nav -->
+    <div class="bp-nav">
+      <button class="bp-nav-btn active" onclick="bpSetView('today',this)">📅 Today</button>
+      <button class="bp-nav-btn" onclick="bpSetView('week',this)">🗓️ Week View</button>
+      <button class="bp-nav-btn" onclick="bpSetView('phase',this)">🗺️ Phase Plan</button>
+      <button class="bp-nav-btn" onclick="bpSetView('syllabus',this)">📋 Full Syllabus</button>
+      <button class="bp-nav-btn" onclick="bpSetView('strategy',this)">🏹 Strategy</button>
+      <button class="bp-nav-btn" onclick="bpSetView('progress',this)">📊 Progress</button>
+      <!-- date nav (only in today/week) -->
+      <div id="bpDateNav" style="display:flex;align-items:center;gap:.4rem;margin-left:auto">
+        <button class="bp-nav-btn" style="padding:6px 14px" onclick="bpNavDate(-1)">←</button>
+        <span class="bp-date-label" id="bpDateLabel">Loading…</span>
+        <button class="bp-nav-btn" style="padding:6px 14px" onclick="bpNavDate(1)">→</button>
+      </div>
+    </div>
+    <!-- Dynamic content -->
+    <div id="bpContent"></div>
+  </div>
+</div>
+
+<!-- ═══ ERROR LOG ═══ -->
+<div class="page" id="page-errorlog">
+  <div class="bp-errorlog-wrap">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:.5rem">
+      <div>
+        <div style="font-family:'Rajdhani',sans-serif;font-size:1.5rem;font-weight:700;color:var(--olive-dark)">📕 Error Log — Wrong Questions</div>
+        <div style="font-size:.8rem;color:var(--text-muted)">All wrong answers saved here. Master them to improve!</div>
+      </div>
+      <button class="btn-sm" onclick="clearMasteredErrors()">🧹 Clear Mastered</button>
+    </div>
+    <div class="bp-error-stats">
+      <div class="bp-error-stat"><div class="bp-error-stat-val" id="elTotal">0</div><div class="bp-error-stat-lbl">Total Errors</div></div>
+      <div class="bp-error-stat"><div class="bp-error-stat-val" id="elMastered" style="color:var(--green)">0</div><div class="bp-error-stat-lbl">Mastered</div></div>
+      <div class="bp-error-stat"><div class="bp-error-stat-val" id="elPending" style="color:var(--red)">0</div><div class="bp-error-stat-lbl">To Review</div></div>
+    </div>
+    <!-- Subject progress -->
+    <div id="elSubjectProgress" style="background:var(--white);border-radius:14px;padding:1rem;box-shadow:var(--shadow);margin-bottom:1rem;display:none"></div>
+    <!-- Filters -->
+    <div class="bp-error-filters">
+      <button class="bp-error-filter-btn active" onclick="elFilter('all',this)">All</button>
+      <button class="bp-error-filter-btn" onclick="elFilter('pending',this)">📕 To Review</button>
+      <button class="bp-error-filter-btn" onclick="elFilter('mastered',this)">✅ Mastered</button>
+      <button class="bp-error-filter-btn" onclick="elFilter('Mathematics',this)">📐 Math</button>
+      <button class="bp-error-filter-btn" onclick="elFilter('Science',this)">🔬 Science</button>
+      <button class="bp-error-filter-btn" onclick="elFilter('English',this)">📖 English</button>
+      <button class="bp-error-filter-btn" onclick="elFilter('GK',this)">🌏 GK</button>
+      <button class="bp-error-filter-btn" onclick="elFilter('Intelligence',this)">🧠 Intelligence</button>
+      <button class="bp-error-filter-btn" onclick="elFilter('Social Studies',this)">📚 Social</button>
+    </div>
+    <div id="elBody"><div class="lb-empty">No errors recorded yet. Take a quiz to start!</div></div>
   </div>
 </div>
 
@@ -720,6 +952,8 @@ function showPage(name){
   if(name==='leaderboard') renderLeaderboard();
   if(name==='admin'){adminTab('addq');renderQList();renderNotesList();renderUsers()}
   if(name==='search') document.getElementById('searchInput').focus();
+  if(name==='battleplan') bpInit();
+  if(name==='errorlog') renderErrorLog();
 }
 function switchAuth(to){document.querySelectorAll('#page-login,#page-register').forEach(p=>p.classList.remove('active'));document.getElementById('page-'+to).classList.add('active')}
 
@@ -797,7 +1031,7 @@ function startQuiz(){
   if(ch)pool=pool.filter(q=>q.chapter===ch);if(tp)pool=pool.filter(q=>q.topic===tp);
   if(!pool.length){showToast('No questions found!');return}
   pool=pool.sort(()=>Math.random()-.5).slice(0,cnt);
-  currentQuiz.questions=pool;currentQuiz.index=0;currentQuiz.correct=0;currentQuiz.wrong=0;currentQuiz.timedOut=0;currentQuiz.chapter=ch;currentQuiz.topic=tp;currentQuiz.wrongAnswers=[];
+  currentQuiz.questions=pool;currentQuiz.index=0;currentQuiz.correct=0;currentQuiz.wrong=0;currentQuiz.timedOut=0;currentQuiz.chapter=ch;currentQuiz.topic=tp;currentQuiz.wrongAnswers=[];currentQuiz.isDaily=false;currentQuiz.dailyDate='';
   showPage('quiz');renderQuestion();
 }
 
@@ -847,14 +1081,31 @@ async function nextQuestion(){
   const ring=document.getElementById('resultRing');
   ring.className='result-score-ring '+(pct>=90?'excellent':pct>=75?'good':pct>=50?'avg':'poor');
   document.getElementById('resultTitle').textContent=pct>=90?'Excellent! 🌟':pct>=75?'Great job! 🎖️':pct>=50?'Good effort! 💪':'Keep practicing! 📚';
+
+  // ── Pass / Fail Banner ──
+  const isDaily=!!currentQuiz.isDaily;
+  const retryBtn=document.getElementById('retryDailyBtn');
+  if(retryBtn)retryBtn.style.display=isDaily?'':'none';
+  const pfEl=document.getElementById('resultPassFail');
+  if(pfEl){
+    let pfCls,pfIcon,pfTitle,pfMsg;
+    if(pct>=90){pfCls='pf-outstanding';pfIcon='🏆';pfTitle='OUTSTANDING!';pfMsg='Sainik School standard achieved! Keep it up, Cadet!'}
+    else if(pct>=75){pfCls='pf-target';pfIcon='✅';pfTitle=isDaily?'DAILY QUIZ — PASSED':'TARGET ACHIEVED!';pfMsg='You hit the AISSEE target of 75%. Excellent work!'}
+    else if(pct>=60){pfCls='pf-pass';pfIcon='💪';pfTitle=isDaily?'DAILY QUIZ — PASSED':'PASSED!';pfMsg='Good job! Push to 75% to reach AISSEE target. Review red topics.'}
+    else{pfCls='pf-fail';pfIcon='📕';pfTitle=isDaily?'DAILY QUIZ — NEEDS WORK':'NEEDS IMPROVEMENT';pfMsg='Review all wrong answers below. Revisit topic notes & retry.'}
+    pfEl.innerHTML=`<div class="pf-banner ${pfCls}"><div class="pf-badge">${pfIcon} ${pfTitle}</div><div class="pf-sub">${pfMsg}</div>${isDaily?`<div class="pf-daily-tag">📅 Daily Quiz · ${currentQuiz.dailyDate}</div>`:''}</div>`;
+  }
+
   renderReviewSection(pct);
   showPage('result');
 
-  const score={subject:currentQuiz.selectedSubject,chapter:currentQuiz.chapter||'',topic:currentQuiz.topic||'',total:tot,correct:currentQuiz.correct,pct,ts:Date.now()};
+  const score={subject:currentQuiz.selectedSubject,chapter:currentQuiz.chapter||'',topic:currentQuiz.topic||'',total:tot,correct:currentQuiz.correct,pct,ts:Date.now(),isDaily,dailyDate:currentQuiz.dailyDate||''};
   try{
     await window._FB.updateDoc(window._FB.doc(window._FB.db,'users',window.currentUser.uid),{scores:window._FB.arrayUnion(score)});
     window.currentUser.scores=window.currentUser.scores||[];window.currentUser.scores.push(score);
   }catch(e){}
+  // Save wrong answers to persistent error log
+  saveWrongAnswersToLog(currentQuiz.wrongAnswers);
 }
 
 function renderReviewSection(pct){
@@ -1068,12 +1319,13 @@ async function doSearch(){
 let importedRows=[];
 
 function adminTab(tab){
-  const tabs=['addq','import','listq','addn','listn','users'];
+  const tabs=['addq','import','listq','addn','listn','daily','users'];
   document.querySelectorAll('.admin-tab').forEach((t,i)=>t.classList.toggle('active',tabs[i]===tab));
   document.querySelectorAll('.admin-panel').forEach(p=>p.classList.remove('active'));
   const panelId='ap'+tab.charAt(0).toUpperCase()+tab.slice(1);
   document.getElementById(panelId).classList.add('active');
   if(tab==='listq')renderQList();if(tab==='listn')renderNotesList();if(tab==='users')renderUsers();
+  if(tab==='daily'){setDailyDateToday();renderDailyPanel();}
 }
 
 /* ══ CSV / GOOGLE SHEETS IMPORT ══ */
@@ -1185,10 +1437,12 @@ function clearImport(){
 
 /* SAVE QUESTION */
 async function saveQuestion(){
+  const dateVal=document.getElementById('aDate').value;
   const q={subject:document.getElementById('aSubject').value,difficulty:document.getElementById('aDiff').value,chapter:document.getElementById('aChapter').value.trim(),topic:document.getElementById('aTopic').value.trim(),question:document.getElementById('aQuestion').value.trim(),options:[document.getElementById('opt0').value.trim(),document.getElementById('opt1').value.trim(),document.getElementById('opt2').value.trim(),document.getElementById('opt3').value.trim()],correct:document.querySelector('input[name="correctOpt"]:checked').value,explanation:document.getElementById('aExplanation').value.trim()};
+  if(dateVal)q.date=dateVal;
   if(!q.chapter||!q.topic||!q.question||q.options.some(o=>!o)){showToast('Fill all fields!');return}
   const btn=document.getElementById('saveQBtn');btn.disabled=true;btn.textContent='Saving…';
-  try{const ref=await window._FB.addDoc(window._FB.collection(window._FB.db,'questions'),q);allQuestions.push({id:ref.id,...q,subject:normalizeSubject(q.subject)});['aChapter','aTopic','aQuestion','aExplanation'].forEach(id=>document.getElementById(id).value='');['opt0','opt1','opt2','opt3'].forEach(id=>document.getElementById(id).value='');showToast('✅ Question saved!')}
+  try{const ref=await window._FB.addDoc(window._FB.collection(window._FB.db,'questions'),q);allQuestions.push({id:ref.id,...q,subject:normalizeSubject(q.subject)});['aChapter','aTopic','aQuestion','aExplanation'].forEach(id=>document.getElementById(id).value='');['opt0','opt1','opt2','opt3'].forEach(id=>document.getElementById(id).value='');document.getElementById('aDate').value='';showToast('✅ Question saved!')}
   catch(e){showToast('❌ '+e.message)}btn.disabled=false;btn.textContent='💾 Save Question';
 }
 async function renderQList(){
@@ -1209,7 +1463,9 @@ function updatePreview(){
   renderMathInElement(el,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false},{left:'\\(',right:'\\)',display:false},{left:'\\[',right:'\\]',display:true}],throwOnError:false});
 }
 async function saveNote(){
+  const dateVal=document.getElementById('nDate').value;
   const data={class:document.getElementById('nClass').value,subject:document.getElementById('nSubject').value,chapter:document.getElementById('nChapter').value.trim(),topic:document.getElementById('nTopic').value.trim(),title:document.getElementById('nTitle').value.trim(),content:document.getElementById('nContent').value,order:parseInt(document.getElementById('nOrder').value)||1,updatedAt:Date.now()};
+  if(dateVal)data.date=dateVal;
   if(!data.chapter||!data.topic||!data.title||!data.content){showToast('Fill all fields!');return}
   const btn=document.getElementById('saveNoteBtn');btn.disabled=true;btn.textContent='Saving…';
   const noteId=document.getElementById('editingNoteId').value;
@@ -1219,13 +1475,14 @@ async function saveNote(){
     clearNoteEditor();renderNotesList();
   }catch(e){showToast('❌ '+e.message)}btn.disabled=false;btn.textContent='💾 Save Note';
 }
-function clearNoteEditor(){['nChapter','nTopic','nTitle','nContent'].forEach(id=>document.getElementById(id).value='');document.getElementById('nOrder').value='1';document.getElementById('editingNoteId').value='';document.getElementById('editingLabel').style.display='none';document.getElementById('editorPreview').innerHTML='<div class="empty-state"><div class="empty-icon">✏️</div>Start typing…</div>'}
+function clearNoteEditor(){['nChapter','nTopic','nTitle','nContent'].forEach(id=>document.getElementById(id).value='');document.getElementById('nOrder').value='1';document.getElementById('nDate').value='';document.getElementById('editingNoteId').value='';document.getElementById('editingLabel').style.display='none';document.getElementById('editorPreview').innerHTML='<div class="empty-state"><div class="empty-icon">✏️</div>Start typing…</div>'}
 function editNote(id){
   const n=allNotes.find(x=>x.id===id);if(!n)return;
   document.getElementById('nClass').value=n.class;document.getElementById('nSubject').value=n.subject;
   document.getElementById('nChapter').value=n.chapter;document.getElementById('nTopic').value=n.topic;
   document.getElementById('nTitle').value=n.title;document.getElementById('nContent').value=n.content||'';
   document.getElementById('nOrder').value=n.order||1;document.getElementById('editingNoteId').value=id;
+  document.getElementById('nDate').value=n.date||'';
   document.getElementById('editingLabel').style.display='';updatePreview();showPage('admin');adminTab('addn');
 }
 async function renderNotesList(){
@@ -1243,9 +1500,1052 @@ async function renderUsers(){
   document.getElementById('usersBody').innerHTML=snap.docs.map(d=>{const u=d.data(),sc=u.scores||[],avg=sc.length?Math.round(sc.reduce((a,b)=>a+b.pct,0)/sc.length)+'%':'–',best=sc.length?Math.max(...sc.map(s=>s.pct))+'%':'–';return `<tr><td><strong>${u.name}</strong>${u.isAdmin?' 🛡️':''}</td><td>${u.email}</td><td>${sc.length}</td><td>${avg}</td><td>${best}</td></tr>`}).join('');
 }
 
-/* ══ UTILS ══ */
 function esc(s){return(s||'').replace(/'/g,"\\'")}
 function timeAgo(ts){if(!ts)return'recently';const s=Math.floor((Date.now()-ts)/1000);if(s<60)return'just now';if(s<3600)return Math.floor(s/60)+'m ago';if(s<86400)return Math.floor(s/3600)+'h ago';if(s<604800)return Math.floor(s/86400)+'d ago';return new Date(ts).toLocaleDateString('en-IN')}
+
+/* ══════════════════════════════════════════
+   BATTLE PLAN — CORE DATA
+══════════════════════════════════════════ */
+
+// Exam date: Jan 12 2027 (AISSEE 2027 expected date)
+const EXAM_DATE = new Date('2027-01-12');
+const PLAN_START = new Date('2026-04-05'); // today
+
+// Subject colors
+const SUBJ_COLORS = {
+  'Mathematics':'#4a5c2f','Science':'#1a7a4a','English':'#1a5276',
+  'GK':'#6c3483','Intelligence':'#935116','Social Studies':'#78281f'
+};
+const SUBJ_DOT = {
+  'Mathematics':'#4a5c2f','Science':'#27ae60','English':'#2980b9',
+  'GK':'#8e44ad','Intelligence':'#d4a006','Social Studies':'#c0392b'
+};
+
+// ─── 9-MONTH PHASE STRUCTURE ───
+const PHASES = [
+  {
+    name:'Phase 1 — Foundation',months:'Apr–May 2026',weeks:'1–8',
+    focus:'Build strong Class 5 base, introduce Class 6 basics',
+    subjects:['Mathematics','English','Science','GK','Intelligence','Social Studies'],
+    color:'#4a5c2f'
+  },
+  {
+    name:'Phase 2 — Core Strength',months:'Jun–Jul 2026',weeks:'9–17',
+    focus:'Complete core syllabus for all subjects, deep understanding',
+    subjects:['Mathematics','English','Science','GK','Intelligence','Social Studies'],
+    color:'#1a7a4a'
+  },
+  {
+    name:'Phase 3 — Advanced Topics',months:'Aug–Sep 2026',weeks:'18–26',
+    focus:'Advanced topics, speed + accuracy drills, mock tests begin',
+    subjects:['Mathematics','English','Science','GK','Intelligence'],
+    color:'#1a5276'
+  },
+  {
+    name:'Phase 4 — Revision Sprint',months:'Oct–Nov 2026',weeks:'27–35',
+    focus:'Full syllabus revision, chapter-wise tests every day',
+    subjects:['All Subjects — Intensive Revision'],
+    color:'#6c3483'
+  },
+  {
+    name:'Phase 5 — Final Push',months:'Dec 2026 – Jan 2027',weeks:'36–40',
+    focus:'Full mock tests, weak area drilling, confidence building',
+    subjects:['Mock Tests','Error Log Review','Speed Drills'],
+    color:'#c0392b'
+  }
+];
+
+// ─── FULL SYLLABUS ───
+const FULL_SYLLABUS = {
+  Mathematics:[
+    'Number System (1–9999999)','HCF & LCM','Fractions & Decimals',
+    'Simplification (BODMAS)','Profit & Loss','Simple Interest',
+    'Ratio & Proportion','Percentage','Time & Work','Time, Speed & Distance',
+    'Unitary Method','Average','Perimeter & Area (2D shapes)',
+    'Volume & Surface Area (cube, cuboid)','Geometry (lines, angles, triangles)',
+    'Mensuration','Data Handling & Graphs','Basic Algebra','Number Patterns',
+    'Word Problems (mixed)'
+  ],
+  English:[
+    'Nouns (Common, Proper, Collective, Abstract)','Pronouns',
+    'Adjectives (Types & Degrees)','Verbs (Tense — Present, Past, Future)',
+    'Adverbs','Prepositions','Conjunctions','Interjections',
+    'Articles (a, an, the)','Subject–Verb Agreement',
+    'Active & Passive Voice','Direct & Indirect Speech',
+    'Reading Comprehension','Letter Writing','Essay Writing',
+    'Vocabulary (Synonyms, Antonyms, One-word substitution)',
+    'Idioms & Phrases','Spelling & Word Meaning',
+    'Sentence Rearrangement','Fill in the Blanks'
+  ],
+  Science:[
+    'Living Things — Characteristics (MRS GREN)','Cell — Structure & Function',
+    'Plants — Photosynthesis & Respiration','Animals — Nutrition & Digestion',
+    'Food & Nutrition in Humans','Diseases & Health',
+    'Skeletal & Muscular System','Circulatory & Respiratory System',
+    'Reproduction in Plants & Animals','Adaptation in Animals',
+    'Ecosystem & Food Chain','Natural Resources',
+    'Matter — Solid, Liquid, Gas','Changes — Physical & Chemical',
+    'Force & Motion','Simple Machines','Light & Shadow',
+    'Sound','Electricity & Magnetism','Earth, Moon & Solar System',
+    'Weather, Climate & Natural Disasters','Environmental Science'
+  ],
+  GK:[
+    'India — States & Capitals','India — Geography (Rivers, Mountains, Plains)',
+    'National Symbols & Emblems','Famous Personalities (Freedom Fighters)',
+    'Indian Constitution — Basic','Important Dates & Days',
+    'Science in Daily Life','Sports & Games',
+    'Books & Authors','Countries & Currencies',
+    'World Geography Basics','Inventions & Discoveries',
+    'First in India/World','Awards & Honours (National)',
+    'Current Affairs (monthly)','Indian Army & Defence',
+    'Sainik School — History & Purpose','Computer Basics'
+  ],
+  Intelligence:[
+    'Number Series & Patterns','Alphabet Series',
+    'Coding–Decoding','Analogy (Number & Word)',
+    'Odd One Out','Mirror & Water Image',
+    'Figure Classification','Embedded Figures',
+    'Paper Folding & Cutting','Counting of Figures',
+    'Direction & Distance','Blood Relations',
+    'Ranking & Arrangement','Calendar Problems',
+    'Clock Problems','Mathematical Operations',
+    'Matrix','Missing Number',
+    'Logical Venn Diagrams','Syllogism Basics'
+  ],
+  'Social Studies':[
+    'Our Earth — Layers & Structure','Continents & Oceans',
+    'Movements of Earth (Rotation & Revolution)','Seasons & Climate Zones',
+    'Maps & Globe — Scales, Grid','Landforms',
+    'India — Physical Features','India — Climate & Seasons',
+    'Ancient India — Indus Valley, Vedic Age','Maurya & Gupta Empire',
+    'Medieval India — Delhi Sultanate, Mughals','British Rule & Freedom Struggle',
+    'Indian Constitution & Democracy','Local Government (Panchayat, Municipality)',
+    'Development & Diversity','Resources — Natural & Human',
+    'Agriculture in India','Industries in India',
+    'Transport & Communication','India & World Relations'
+  ]
+};
+
+// ─── DAILY PLAN GENERATOR ───
+// Each day has: subjects[], topics per subject, timetable, parent note
+// We generate deterministically from the date offset
+function getDayPlan(dateObj) {
+  const dayNum = Math.floor((dateObj - PLAN_START) / 86400000); // days since start
+  const weekNum = Math.floor(dayNum / 7) + 1;
+  const dayOfWeek = dateObj.getDay(); // 0=Sun,1=Mon,...
+
+  // Sunday: rest + light revision
+  if (dayOfWeek === 0) {
+    return buildSundayPlan(dateObj, dayNum, weekNum);
+  }
+
+  // Determine phase
+  let phase = PHASES[0];
+  if (weekNum >= 36) phase = PHASES[4];
+  else if (weekNum >= 27) phase = PHASES[3];
+  else if (weekNum >= 18) phase = PHASES[2];
+  else if (weekNum >= 9) phase = PHASES[1];
+
+  // Subject rotation — main subject per day (Mon-Sat)
+  // Pattern: Math, English, Science, GK+Intelligence, Social Studies, Math (alternate)
+  const mainSubjRot = ['Mathematics','English','Science','GK','Social Studies','Intelligence','Mathematics','Science','English','Intelligence'];
+  const secSubjRot  = ['English','Science','GK','Intelligence','Mathematics','Science','English','Mathematics','GK','Social Studies'];
+
+  const idx = dayNum % 10;
+  const mainSubj = mainSubjRot[idx];
+  const secSubj  = secSubjRot[idx];
+
+  // Topic index within subject
+  const sylList = getSyllabusForSubject(mainSubj);
+  const topicIdx = Math.floor(dayNum / 2) % Math.max(sylList.length, 1);
+  const mainTopic = sylList[topicIdx] || sylList[0];
+
+  const secList = getSyllabusForSubject(secSubj);
+  const secTopicIdx = (Math.floor(dayNum / 2) + 3) % Math.max(secList.length, 1);
+  const secTopic = secList[secTopicIdx] || secList[0];
+
+  // Revision — pick 2 topics from days 2–7 ago
+  const revTopics = getRevisionTopics(dayNum);
+
+  // Build timetable based on phase
+  const timetable = buildTimetable(mainSubj, mainTopic, secSubj, secTopic, revTopics, phase, weekNum);
+
+  return {
+    date: dateObj,
+    dayNum,
+    weekNum,
+    phase: phase.name,
+    mainSubject: mainSubj,
+    mainTopic,
+    secSubject: secSubj,
+    secTopic,
+    revisionTopics: revTopics,
+    timetable,
+    parentNote: buildParentNote(mainSubj, mainTopic, phase, weekNum)
+  };
+}
+
+function getSyllabusForSubject(subj) {
+  const s = FULL_SYLLABUS[subj] || [];
+  return s.filter(Boolean);
+}
+
+function getRevisionTopics(dayNum) {
+  // Pull topics from 2, 4, 6 days ago for spaced repetition
+  const result = [];
+  [2,4,6].forEach(offset => {
+    if (dayNum - offset < 0) return;
+    const prevIdx = (dayNum - offset) % 10;
+    const subjRot = ['Mathematics','English','Science','GK','Social Studies','Intelligence','Mathematics','Science','English','Intelligence'];
+    const subj = subjRot[prevIdx];
+    const list = getSyllabusForSubject(subj);
+    const ti = Math.floor((dayNum - offset) / 2) % Math.max(list.length, 1);
+    const topic = list[ti];
+    if (topic) result.push({subject: subj, topic});
+  });
+  return result;
+}
+
+function buildTimetable(mainS, mainT, secS, secT, revTopics, phase, weekNum) {
+  const isPhase4Plus = weekNum >= 27;
+  const isPhase5 = weekNum >= 36;
+  
+  const rows = [
+    {time:'6:00–6:30 AM', act:'🏃 Morning run + exercise (build stamina for Sainik)'},
+    {time:'6:30–7:00 AM', act:`📖 ${mainS} reading — 1 page aloud (fluency + pronunciation)`},
+    {time:'7:00–8:30 AM', act:`📚 ${mainS} — ${mainT} (learn new concept + 10 examples)`},
+    {time:'8:30–9:00 AM', act:'🍳 Breakfast + short break'},
+    {time:'9:00–10:00 AM', act:`🔬 ${secS} — ${secT} (read + diagram/notes)`},
+    {time:'10:00–10:15 AM', act:'☕ Break'},
+  ];
+
+  if (!isPhase4Plus) {
+    rows.push({time:'10:15–11:00 AM', act:`🔄 REVISION — ${revTopics.length?revTopics.map(r=>r.topic).join(', '):'Previous topics'} (5 Qs each)`});
+    rows.push({time:'11:00 AM+', act:'🎮 Free play + evening: 1 current affairs news story'});
+  } else if (!isPhase5) {
+    rows.push({time:'10:15–11:30 AM', act:`📝 CHAPTER TEST — ${mainS} (20 questions, timed)`});
+    rows.push({time:'11:30 AM–12:00 PM', act:'📕 Error Log review — mark mastered'});
+    rows.push({time:'Evening', act:`🔄 REVISION — ${revTopics.length?revTopics.map(r=>r.topic).join(', '):'Weak topics'}`});
+  } else {
+    rows.push({time:'10:15–11:30 AM', act:'📋 FULL MOCK TEST — Mixed (30 Qs, all subjects)'});
+    rows.push({time:'11:30–12:00 PM', act:'📕 Error Log + wrong answers review'});
+    rows.push({time:'Evening', act:'⚡ Speed drill — 20 Intelligence Qs in 10 min'});
+  }
+  return rows;
+}
+
+function buildParentNote(subj, topic, phase, weekNum) {
+  const tips = {
+    Mathematics: `Ask: "Can you show me how to solve this with real objects (coins, matchsticks)?" Then give 5 verbal problems from daily life.`,
+    English: `Read the passage together. Ask them to explain it back in their own words. Check 5 spellings.`,
+    Science: `Ask them to draw what they learned. Then ask MRS GREN / key terms from memory.`,
+    GK: `Turn it into a quick-fire quiz: "Name 3 Freedom Fighters / States / Rivers!" Make it fun!`,
+    Intelligence: `Do 2 puzzles together on paper. Time them. Praise speed + accuracy equally.`,
+    'Social Studies': `Show them on a real map/globe. Ask: "Where is this place?" Make it visual.`
+  };
+  const weekTip = weekNum >= 36 ? '⚡ Final weeks: Do a timed 30-min full mock test today. Review every wrong answer together with explanation.' :
+    weekNum >= 27 ? '📊 Revision phase: After study, ask 5 questions verbally on today\'s topic — no notes allowed!' :
+    '💡 Foundation phase: Sit with child for first 15 min to explain new concept using daily life examples.';
+  
+  return {
+    role: `👨‍👩‍👧 Parent's Role Today`,
+    mainTip: tips[subj] || 'Ask 5 questions verbally after study. Write wrong answers in the Error Log.',
+    weekTip,
+    errorLog: 'Write any wrong answer in the Error Log notebook OR mark it on the app Error Log page.'
+  };
+}
+
+function buildSundayPlan(dateObj, dayNum, weekNum) {
+  return {
+    date: dateObj, dayNum, weekNum,
+    phase: 'Sunday — Active Rest & Review',
+    isSunday: true,
+    timetable: [
+      {time:'6:00–6:30 AM', act:'🏃 Morning run — longer than weekdays (stamina)'},
+      {time:'6:30–7:00 AM', act:'📖 Free reading — newspaper / story book'},
+      {time:'7:00–8:30 AM', act:'🔄 WEEK REVISION — 10 Qs from each subject done this week'},
+      {time:'8:30–9:00 AM', act:'🍳 Breakfast'},
+      {time:'9:00–10:00 AM', act:'📕 Error Log review — attempt all pending wrong questions again'},
+      {time:'10:00 AM+', act:'🎮 Free time + outdoor activity + 1 current affairs story'},
+    ],
+    parentNote: {
+      role:`👨‍👩‍👧 Parent's Sunday Role`,
+      mainTip:`Take a verbal "weekly test" — ask 3 questions from each subject covered this week. Time them (30 seconds per question).`,
+      weekTip:`Build routine: Sunday = review day. Don't skip this — spaced repetition is the key to AISSEE success!`,
+      errorLog:'Check the Error Log with child — celebrate mastered ones, re-drill the rest.'
+    }
+  };
+}
+
+// ─── BATTLE PLAN STATE ───
+let bpCurrentDate = new Date();
+bpCurrentDate.setHours(0,0,0,0);
+let bpCurrentView = 'today';
+let bpCompletedTopics = {}; // key: 'YYYY-MM-DD-topicName' → true
+
+function bpLoadState() {
+  if (!window.currentUser) return;
+  try {
+    bpCompletedTopics = JSON.parse(localStorage.getItem('bp_done_' + window.currentUser.uid) || '{}');
+  } catch(e) { bpCompletedTopics = {}; }
+}
+function bpSaveState() {
+  if (!window.currentUser) return;
+  localStorage.setItem('bp_done_' + window.currentUser.uid, JSON.stringify(bpCompletedTopics));
+}
+
+function bpInit() {
+  bpLoadState();
+  bpCurrentDate = new Date();
+  bpCurrentDate.setHours(0,0,0,0);
+  updateCountdown();
+  bpSetView('today', document.querySelector('.bp-nav-btn'));
+}
+
+function updateCountdown() {
+  const now = new Date();
+  const diff = Math.ceil((EXAM_DATE - now) / 86400000);
+  const months = Math.max(0, Math.round(diff / 30));
+  const el1 = document.getElementById('bpDaysLeft');
+  const el2 = document.getElementById('bpMonthsLeft');
+  if (el1) el1.textContent = diff + ' days left';
+  if (el2) el2.textContent = months + ' Months';
+}
+
+function bpSetView(view, btn) {
+  bpCurrentView = view;
+  document.querySelectorAll('.bp-nav-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  const dateNav = document.getElementById('bpDateNav');
+  if (dateNav) dateNav.style.display = (view === 'today' || view === 'week') ? 'flex' : 'none';
+  renderBpView();
+}
+
+function bpNavDate(dir) {
+  if (bpCurrentView === 'week') {
+    bpCurrentDate = new Date(bpCurrentDate.getTime() + dir * 7 * 86400000);
+  } else {
+    bpCurrentDate = new Date(bpCurrentDate.getTime() + dir * 86400000);
+  }
+  renderBpView();
+}
+
+function renderBpView() {
+  const label = document.getElementById('bpDateLabel');
+  if (label) {
+    if (bpCurrentView === 'today') {
+      label.textContent = bpCurrentDate.toLocaleDateString('en-IN', {weekday:'long',day:'numeric',month:'short',year:'numeric'});
+    } else if (bpCurrentView === 'week') {
+      const wEnd = new Date(bpCurrentDate.getTime() + 6*86400000);
+      label.textContent = bpCurrentDate.toLocaleDateString('en-IN',{day:'numeric',month:'short'}) + ' – ' + wEnd.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+    } else {
+      label.textContent = '';
+    }
+  }
+
+  const dateNav = document.getElementById('bpDateNav');
+  if (dateNav) dateNav.style.display = (bpCurrentView === 'today' || bpCurrentView === 'week') ? 'flex' : 'none';
+
+  const el = document.getElementById('bpContent');
+  if (!el) return;
+  if (bpCurrentView === 'today') {
+    el.innerHTML = renderBpToday();
+    const dateStr = bpCurrentDate.toISOString().split('T')[0];
+    fillDailyMaterial(dateStr);
+  }
+  else if (bpCurrentView === 'week') el.innerHTML = renderBpWeek();
+  else if (bpCurrentView === 'phase') el.innerHTML = renderBpPhase();
+  else if (bpCurrentView === 'syllabus') el.innerHTML = renderBpSyllabus();
+  else if (bpCurrentView === 'strategy') el.innerHTML = renderBpStrategy();
+  else if (bpCurrentView === 'progress') el.innerHTML = renderBpProgress();
+}
+
+function renderBpToday() {
+  const plan = getDayPlan(bpCurrentDate);
+  const dateKey = bpCurrentDate.toISOString().split('T')[0];
+  const today = new Date(); today.setHours(0,0,0,0);
+  const isToday = bpCurrentDate.getTime() === today.getTime();
+
+  const mainDone = bpCompletedTopics[dateKey + '-main'];
+  const secDone  = bpCompletedTopics[dateKey + '-sec'];
+
+  let topicsHtml = '';
+  if (plan.isSunday) {
+    topicsHtml = `<div class="bp-topic-row" style="background:linear-gradient(135deg,#fef9e7,#fff3cd)">
+      <div style="font-size:1.5rem">☀️</div>
+      <div><div class="bp-topic-subj">SUNDAY</div><div class="bp-topic-name">Active Rest & Weekly Review</div><div class="bp-topic-hint">Verbal test + Error Log review + Outdoor play</div></div>
+    </div>`;
+  } else {
+    topicsHtml = `
+    <div class="bp-topic-row ${mainDone?'bp-topic-done':''}" onclick="bpToggleTopic('${dateKey}-main', this)">
+      <div class="bp-topic-dot" style="background:${SUBJ_DOT[plan.mainSubject]||'#999'}"></div>
+      <div style="flex:1">
+        <div class="bp-topic-subj" style="color:${SUBJ_DOT[plan.mainSubject]}">${plan.mainSubject}</div>
+        <div class="bp-topic-name">${plan.mainTopic}</div>
+        <div class="bp-topic-hint">New concept + 10 examples + 5 practice questions</div>
+      </div>
+      <div class="bp-tick">${mainDone?'✅':'⬜'}</div>
+    </div>
+    <div class="bp-topic-row ${secDone?'bp-topic-done':''}" onclick="bpToggleTopic('${dateKey}-sec', this)">
+      <div class="bp-topic-dot" style="background:${SUBJ_DOT[plan.secSubject]||'#999'}"></div>
+      <div style="flex:1">
+        <div class="bp-topic-subj" style="color:${SUBJ_DOT[plan.secSubject]}">${plan.secSubject}</div>
+        <div class="bp-topic-name">${plan.secTopic}</div>
+        <div class="bp-topic-hint">Read + diagram + notes</div>
+      </div>
+      <div class="bp-tick">${secDone?'✅':'⬜'}</div>
+    </div>
+    ${plan.revisionTopics.length ? `<div style="font-size:.78rem;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.5px;margin:.7rem 0 .3rem">🔄 Revision (Spaced Recall)</div>` + plan.revisionTopics.map((r,ri) => {
+      const revDone = bpCompletedTopics[dateKey + '-rev' + ri];
+      return `<div class="bp-topic-row ${revDone?'bp-topic-done':''}" onclick="bpToggleTopic('${dateKey}-rev${ri}', this)">
+        <div class="bp-topic-dot" style="background:${SUBJ_DOT[r.subject]||'#999'}"></div>
+        <div style="flex:1"><div class="bp-topic-subj">${r.subject}</div><div class="bp-topic-name">${r.topic}</div><div class="bp-topic-hint">5 quick recall questions</div></div>
+        <div class="bp-tick">${revDone?'✅':'⬜'}</div>
+      </div>`;
+    }).join('') : ''}`;
+  }
+
+  const timetableHtml = plan.timetable.map(r => `
+    <div class="bp-tt-row">
+      <div class="bp-tt-time">${r.time}</div>
+      <div class="bp-tt-act">${r.act}</div>
+    </div>`).join('');
+
+  const p = plan.parentNote;
+  const parentHtml = `
+    <div class="bp-parent-box">
+      <div class="bp-parent-head">${p.role}</div>
+      <div class="bp-parent-list">
+        • ${p.weekTip}<br>
+        • ${p.mainTip}<br>
+        • ${p.errorLog}
+      </div>
+    </div>`;
+
+  const phaseTag = `<div style="display:inline-block;padding:3px 12px;border-radius:20px;background:${plan.isSunday?'#fff3cd':'rgba(74,92,47,.1)'};color:${plan.isSunday?'#856404':'var(--olive)'};font-size:.75rem;font-weight:700;margin-bottom:.8rem">📍 Week ${plan.weekNum} · ${plan.phase}</div>`;
+
+  const quizBtn = !plan.isSunday ? `<div style="margin-top:1rem"><button class="btn-start" onclick="openBpQuiz('${plan.mainSubject}')">� Practice Quiz — ${plan.mainSubject}</button></div>` : '';
+
+  const todayBadge = isToday ? `<span style="background:var(--olive);color:var(--white);font-size:.72rem;font-weight:700;padding:2px 10px;border-radius:10px;margin-left:.5rem">TODAY</span>` : '';
+
+  return `
+    <div class="bp-today-card">
+      <div style="font-family:'Rajdhani',sans-serif;font-size:1.2rem;font-weight:700;color:var(--olive-dark);margin-bottom:.2rem">${plan.date.toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'})} ${todayBadge}</div>
+      ${phaseTag}
+      <div class="bp-section-head">📘 Today's Topics</div>
+      ${topicsHtml}
+      ${quizBtn}
+    </div>
+    <div class="dm-wrap" id="bpDailyMaterial">
+      <div class="bp-section-head">📅 Daily Study Material</div>
+      <div style="color:var(--text-muted);font-size:.85rem">⏳ Loading today's quiz &amp; notes…</div>
+    </div>
+    <div class="bp-today-card">
+      <div class="bp-section-head">📅 Today's Timetable</div>
+      <div class="bp-timetable">${timetableHtml}</div>
+    </div>
+    ${parentHtml}`;
+}
+
+function bpToggleTopic(key, el) {
+  bpCompletedTopics[key] = !bpCompletedTopics[key];
+  bpSaveState();
+  const row = el.closest ? el.closest('.bp-topic-row') : el;
+  if (bpCompletedTopics[key]) {
+    row.classList.add('bp-topic-done');
+    row.querySelector('.bp-tick').textContent = '✅';
+  } else {
+    row.classList.remove('bp-topic-done');
+    row.querySelector('.bp-tick').textContent = '⬜';
+  }
+}
+
+function renderBpWeek() {
+  // Start from Monday of bpCurrentDate's week
+  const monday = new Date(bpCurrentDate);
+  const dow = monday.getDay();
+  monday.setDate(monday.getDate() - (dow === 0 ? 6 : dow - 1));
+  
+  const today = new Date(); today.setHours(0,0,0,0);
+  let html = '<div class="bp-week-grid">';
+  
+  for (let d = 0; d < 7; d++) {
+    const day = new Date(monday.getTime() + d * 86400000);
+    const plan = getDayPlan(day);
+    const isToday = day.getTime() === today.getTime();
+    const isPast = day < today;
+    const dateKey = day.toISOString().split('T')[0];
+    const mainDone = bpCompletedTopics[dateKey + '-main'];
+    const secDone = bpCompletedTopics[dateKey + '-sec'];
+    
+    const classNames = ['bp-week-day', isToday ? 'today-day' : '', isPast ? 'past-day' : '', (mainDone && secDone) ? 'done-day' : ''].filter(Boolean).join(' ');
+    const dayNames = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+
+    let subjDots = '';
+    if (!plan.isSunday) {
+      subjDots = `<div class="bp-week-subjects">
+        <div class="bp-week-item"><span class="bp-week-subj-dot" style="background:${SUBJ_DOT[plan.mainSubject]}"></span>${plan.mainTopic ? plan.mainTopic.substring(0,22)+(plan.mainTopic.length>22?'…':'') : plan.mainSubject}</div>
+        <div class="bp-week-item"><span class="bp-week-subj-dot" style="background:${SUBJ_DOT[plan.secSubject]}"></span>${plan.secTopic ? plan.secTopic.substring(0,22)+(plan.secTopic.length>22?'…':'') : plan.secSubject}</div>
+      </div>`;
+    } else {
+      subjDots = `<div class="bp-week-item" style="color:#856404;font-size:.7rem;margin-top:3px">☀️ Weekly Review</div>`;
+    }
+    
+    html += `<div class="${classNames}" onclick="bpJumpToDay(${day.getTime()})">
+      <div class="bp-week-day-num">${day.getDate()}</div>
+      <div class="bp-week-day-name">${dayNames[day.getDay()]}${isToday?' •':''}</div>
+      ${subjDots}
+      ${mainDone && secDone ? '<div style="font-size:.7rem;color:var(--green);font-weight:700;margin-top:3px">✅ Done</div>' : ''}
+    </div>`;
+  }
+  html += '</div>';
+  html += `<div style="margin-top:.8rem;font-size:.8rem;color:var(--text-muted);text-align:center">Click any day to view its plan</div>`;
+  return html;
+}
+
+function bpJumpToDay(ts) {
+  bpCurrentDate = new Date(ts);
+  bpCurrentDate.setHours(0,0,0,0);
+  bpSetView('today', document.querySelector('.bp-nav-btn'));
+}
+
+function renderBpPhase() {
+  return `<div style="margin-bottom:.5rem;font-size:.85rem;color:var(--text-muted)">Complete 9-month strategic roadmap for AISSEE 2027</div>` +
+    PHASES.map(p => `
+    <div class="bp-phase-card" style="border-left-color:${p.color}">
+      <div class="bp-phase-head" style="color:${p.color}">${p.name}</div>
+      <div class="bp-phase-months">${p.months} · Weeks ${p.weeks}</div>
+      <div class="bp-topic-hint" style="margin-bottom:.6rem;font-size:.83rem">${p.focus}</div>
+      <div class="bp-phase-subjects">${p.subjects.map(s=>`<span class="bp-phase-tag" style="background:${p.color}18;color:${p.color}">${s}</span>`).join('')}</div>
+    </div>`).join('') + 
+    `<div style="background:linear-gradient(135deg,#fdecea,#f9d2cf);border-radius:14px;padding:1rem 1.3rem;border-left:4px solid var(--red);margin-top:.5rem">
+      <div style="font-family:'Rajdhani',sans-serif;font-weight:700;color:var(--red);margin-bottom:.3rem">🎯 AISSEE 2027 Target</div>
+      <div style="font-size:.85rem;color:#7a1b1b">Exam: <strong>January 2027</strong> · Class 6 Entry · Top 10 Sainik School rank<br>
+      Required: <strong>≥80%</strong> in overall · <strong>≥70%</strong> in each individual section<br>
+      Practice target after Phase 3: <strong>90%+ on mock tests</strong> consistently</div>
+    </div>`;
+}
+
+function renderBpSyllabus() {
+  const subjects = Object.keys(FULL_SYLLABUS);
+  const icons = {Mathematics:'📐',English:'📖',Science:'🔬',GK:'🌏',Intelligence:'🧠','Social Studies':'📚'};
+  
+  return `<div style="font-size:.85rem;color:var(--text-muted);margin-bottom:.8rem">Complete AISSEE Class 6 syllabus — all topics to be covered by December 2026</div>
+    <div class="bp-syllabus-wrap">` +
+    subjects.map(subj => {
+      const topics = (FULL_SYLLABUS[subj] || []).filter(Boolean);
+      return `<div class="bp-syllabus-card">
+        <div class="bp-syllabus-subj">${icons[subj]||'📘'} ${subj} <span style="font-size:.75rem;color:var(--text-muted);font-weight:400">(${topics.length} topics)</span></div>
+        <ul class="bp-syllabus-list">${topics.map((t,i)=>`<li>${i+1}. ${t}</li>`).join('')}</ul>
+      </div>`;
+    }).join('') + `</div>`;
+}
+
+function renderBpStrategy() {
+  return `
+  <div class="bp-strategy-card">
+    <div class="bp-strategy-head">🏹 Winning Strategy — 5 Pillars</div>
+    <div class="bp-strategy-grid">
+      <div class="bp-strategy-item"><span style="font-size:1.2rem">📚</span><div><strong>Daily Consistency</strong><br><span style="color:var(--text-muted)">3–4 hrs/day. Never skip. Even 1 hour is better than zero.</span></div></div>
+      <div class="bp-strategy-item"><span style="font-size:1.2rem">🔄</span><div><strong>Spaced Repetition</strong><br><span style="color:var(--text-muted)">Revise each topic after 2, 7, and 30 days for permanent memory.</span></div></div>
+      <div class="bp-strategy-item"><span style="font-size:1.2rem">📕</span><div><strong>Error Log Mastery</strong><br><span style="color:var(--text-muted)">Every wrong answer = a lesson. Master all errors before exam.</span></div></div>
+      <div class="bp-strategy-item"><span style="font-size:1.2rem">⏱️</span><div><strong>Timed Practice</strong><br><span style="color:var(--text-muted)">AISSEE is time-pressured. Practice 30 Qs in 40 min from Day 1.</span></div></div>
+      <div class="bp-strategy-item"><span style="font-size:1.2rem">💪</span><div><strong>Physical Fitness</strong><br><span style="color:var(--text-muted)">Daily run + exercises. Fitness test is part of Sainik School selection.</span></div></div>
+    </div>
+  </div>
+  <div class="bp-strategy-card">
+    <div class="bp-strategy-head">📊 Subject-wise Priority</div>
+    <div class="bp-strategy-grid">
+      <div class="bp-strategy-item"><span style="font-size:1.2rem">📐</span><div><strong>Mathematics (Highest)</strong><br><span style="color:var(--text-muted)">50% of marks. Speed + accuracy = selection. Practise daily.</span></div></div>
+      <div class="bp-strategy-item"><span style="font-size:1.2rem">🧠</span><div><strong>Intelligence (High)</strong><br><span style="color:var(--text-muted)">25 marks. Solve 20+ puzzles daily. Patterns & series daily habit.</span></div></div>
+      <div class="bp-strategy-item"><span style="font-size:1.2rem">📖</span><div><strong>English (High)</strong><br><span style="color:var(--text-muted)">Read 1 page aloud daily. Grammar rules = marks.</span></div></div>
+      <div class="bp-strategy-item"><span style="font-size:1.2rem">🔬</span><div><strong>Science (Medium)</strong><br><span style="color:var(--text-muted)">Diagrams + definitions. Visual memory is key.</span></div></div>
+      <div class="bp-strategy-item"><span style="font-size:1.2rem">🌏</span><div><strong>GK (Medium)</strong><br><span style="color:var(--text-muted)">1 current affairs story daily. India GK = high scoring.</span></div></div>
+      <div class="bp-strategy-item"><span style="font-size:1.2rem">📚</span><div><strong>Social Studies (Support)</strong><br><span style="color:var(--text-muted)">Maps + history timelines. Visual learning.</span></div></div>
+    </div>
+  </div>
+  <div class="bp-strategy-card">
+    <div class="bp-strategy-head">🧠 Thinking & Mindset Rules</div>
+    <div class="bp-strategy-grid">
+      <div class="bp-strategy-item">✅ <div>Mistakes are lessons, not failures. Every error logged = improvement.</div></div>
+      <div class="bp-strategy-item">✅ <div>Compare with yesterday's self, not others. 1% better each day = 365% by exam.</div></div>
+      <div class="bp-strategy-item">✅ <div>Reward: after 7 days of perfect study → 1 special reward (parent decides).</div></div>
+      <div class="bp-strategy-item">✅ <div>Visualize wearing the Sainik School uniform. Keep a photo on the study table.</div></div>
+      <div class="bp-strategy-item">✅ <div>No mobile / screens during study time. Hard environment = hard focus.</div></div>
+      <div class="bp-strategy-item">✅ <div>Sleep 8–9 hrs. Memory is consolidated during sleep. Never sacrifice sleep.</div></div>
+    </div>
+  </div>
+  <div class="bp-strategy-card">
+    <div class="bp-strategy-head">📅 Weekly Review Checklist (Every Sunday)</div>
+    <div class="bp-strategy-grid">
+      ${['All topics of the week covered?','Error Log updated (all wrong Qs added)?','Mock test score ≥75%?','Physical exercise every day?','1 current affairs story every day?','Error Log reviewed and mastered Qs marked?'].map(item=>`<div class="bp-strategy-item">☐ <div>${item}</div></div>`).join('')}
+    </div>
+  </div>`;
+}
+
+function openBpQuiz(subject) {
+  // Pre-select the subject and navigate to home quiz
+  showPage('home');
+  // Wait for home to init then try to select subject
+  setTimeout(() => {
+    setMode('quiz', document.querySelectorAll('.mode-tab')[0]);
+    const cards = document.querySelectorAll('.subject-card');
+    cards.forEach(c => {
+      if (c.querySelector('.subject-name') && c.querySelector('.subject-name').textContent === subject) {
+        c.click();
+      }
+    });
+  }, 400);
+}
+
+/* ══════════════════════════════════════════
+   ERROR LOG — Persistent Wrong Answers
+══════════════════════════════════════════ */
+
+let errorLog = [];
+let elCurrentFilter = 'all';
+
+function loadErrorLog() {
+  if (!window.currentUser) return;
+  try {
+    errorLog = JSON.parse(localStorage.getItem('el_' + window.currentUser.uid) || '[]');
+  } catch(e) { errorLog = []; }
+}
+function saveErrorLog() {
+  if (!window.currentUser) return;
+  localStorage.setItem('el_' + window.currentUser.uid, JSON.stringify(errorLog));
+}
+
+function saveWrongAnswersToLog(wrongAnswers) {
+  if (!window.currentUser || !wrongAnswers || !wrongAnswers.length) return;
+  loadErrorLog();
+  const keys = ['A','B','C','D'];
+  wrongAnswers.forEach(w => {
+    const q = w.question;
+    // Avoid exact duplicates in same session
+    const exists = errorLog.find(e => e.questionText === q.question && !e.mastered);
+    if (exists) { exists.count = (exists.count || 1) + 1; exists.ts = Date.now(); return; }
+    errorLog.push({
+      id: q.id || Date.now() + Math.random(),
+      subject: q.subject || 'General',
+      chapter: q.chapter || '',
+      topic: q.topic || '',
+      questionText: q.question,
+      options: q.options,
+      correct: q.correct,
+      correctText: q.options ? (keys[parseInt(q.correct)] + '. ' + q.options[parseInt(q.correct)]) : '',
+      yourAnswer: w.yourAnswer >= 0 ? (keys[w.yourAnswer] + '. ' + q.options[w.yourAnswer]) : '⏱️ Timed out',
+      explanation: q.explanation || '',
+      mastered: false,
+      count: 1,
+      ts: Date.now()
+    });
+  });
+  saveErrorLog();
+}
+
+function renderErrorLog() {
+  loadErrorLog();
+  const total = errorLog.length;
+  const mastered = errorLog.filter(e => e.mastered).length;
+  const pending = total - mastered;
+  
+  const el1 = document.getElementById('elTotal');
+  const el2 = document.getElementById('elMastered');
+  const el3 = document.getElementById('elPending');
+  if (el1) el1.textContent = total;
+  if (el2) el2.textContent = mastered;
+  if (el3) el3.textContent = pending;
+
+  // Subject progress
+  renderElSubjectProgress();
+
+  const filtered = filterErrorLog(elCurrentFilter);
+  const body = document.getElementById('elBody');
+  if (!body) return;
+
+  if (!filtered.length) {
+    body.innerHTML = `<div class="lb-empty"><div style="font-size:2rem;margin-bottom:.5rem">${total === 0 ? '🎯' : '🎉'}</div>${total === 0 ? 'No errors yet! Take a quiz first.' : 'No errors in this filter!'}</div>`;
+    return;
+  }
+
+  const keys = ['A','B','C','D'];
+  body.innerHTML = [...filtered].reverse().map(e => {
+    const cls = e.mastered ? 'bp-error-card bp-error-mastered' : 'bp-error-card';
+    return `<div class="${cls}" data-id="${e.id}">
+      <div class="bp-error-header">
+        <div class="bp-error-meta">
+          <span class="bp-error-tag" style="background:${SUBJ_COLORS[e.subject]||'#4a5c2f'}22;color:${SUBJ_COLORS[e.subject]||'var(--olive)'}">${e.subject}</span>
+          ${e.chapter?`<span class="bp-error-tag" style="background:var(--sand);color:var(--text-muted)">${e.chapter}</span>`:''}
+          ${e.topic?`<span class="bp-error-tag" style="background:var(--cream);color:var(--text-muted)">${e.topic}</span>`:''}
+          ${e.count>1?`<span class="bp-error-tag" style="background:#fdecea;color:var(--red)">✕${e.count} times</span>`:''}
+        </div>
+        <div style="display:flex;align-items:center;gap:.4rem">
+          <span class="bp-error-date">${new Date(e.ts).toLocaleDateString('en-IN',{day:'numeric',month:'short'})}</span>
+          <button class="${e.mastered?'bp-master-btn bp-master-btn-off':'bp-master-btn bp-master-btn-on'}" onclick="toggleMastered('${e.id}', this)">${e.mastered?'↩️ Unmark':'✅ Mastered'}</button>
+        </div>
+      </div>
+      <div class="bp-error-q">${e.questionText}</div>
+      ${e.options && e.options.length ? `<div style="display:flex;flex-direction:column;gap:2px;margin-bottom:.4rem">${e.options.map((o,i)=>`<div style="font-size:.8rem;padding:3px 8px;border-radius:6px;${parseInt(e.correct)===i?'background:rgba(39,174,96,.1);color:var(--green);font-weight:700':'background:var(--cream)'}">${keys[i]}. ${o}</div>`).join('')}</div>` : ''}
+      <div class="bp-error-your">Your answer: ${e.yourAnswer}</div>
+      <div class="bp-error-ans">✓ Correct: ${e.correctText}</div>
+      ${e.explanation?`<div class="bp-error-exp">💡 ${e.explanation}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+function renderElSubjectProgress() {
+  const wrap = document.getElementById('elSubjectProgress');
+  if (!wrap || !errorLog.length) { if(wrap) wrap.style.display = 'none'; return; }
+  
+  const subjData = {};
+  errorLog.forEach(e => {
+    if (!subjData[e.subject]) subjData[e.subject] = {total:0,mastered:0};
+    subjData[e.subject].total++;
+    if (e.mastered) subjData[e.subject].mastered++;
+  });
+
+  if (!Object.keys(subjData).length) { wrap.style.display = 'none'; return; }
+  wrap.style.display = '';
+  wrap.innerHTML = `<div style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:1rem;color:var(--olive-dark);margin-bottom:.7rem">📊 Mastery Progress by Subject</div>` +
+    Object.entries(subjData).map(([subj, data]) => {
+      const pct = Math.round((data.mastered / data.total) * 100);
+      return `<div class="bp-subject-progress">
+        <div class="bp-sp-label"><span class="bp-sp-name">${subj}</span><span class="bp-sp-pct">${data.mastered}/${data.total} mastered (${pct}%)</span></div>
+        <div class="bp-progress-bar"><div class="bp-progress-fill" style="width:${pct}%"></div></div>
+      </div>`;
+    }).join('');
+}
+
+function filterErrorLog(filter) {
+  if (filter === 'pending') return errorLog.filter(e => !e.mastered);
+  if (filter === 'mastered') return errorLog.filter(e => e.mastered);
+  if (['Mathematics','Science','English','GK','Intelligence','Social Studies'].includes(filter)) return errorLog.filter(e => e.subject === filter);
+  return errorLog;
+}
+
+function elFilter(filter, btn) {
+  elCurrentFilter = filter;
+  document.querySelectorAll('.bp-error-filter-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  renderErrorLog();
+}
+
+function toggleMastered(id, btn) {
+  const entry = errorLog.find(e => String(e.id) === String(id));
+  if (!entry) return;
+  entry.mastered = !entry.mastered;
+  saveErrorLog();
+  // Update the card style instantly
+  const card = btn.closest('.bp-error-card');
+  if (card) {
+    card.classList.toggle('bp-error-mastered', entry.mastered);
+    btn.textContent = entry.mastered ? '↩️ Unmark' : '✅ Mastered';
+    btn.className = entry.mastered ? 'bp-master-btn bp-master-btn-off' : 'bp-master-btn bp-master-btn-on';
+  }
+  // Update stats
+  const total = errorLog.length;
+  const mastered = errorLog.filter(e => e.mastered).length;
+  const el1 = document.getElementById('elTotal');
+  const el2 = document.getElementById('elMastered');
+  const el3 = document.getElementById('elPending');
+  if (el1) el1.textContent = total;
+  if (el2) el2.textContent = mastered;
+  if (el3) el3.textContent = total - mastered;
+  renderElSubjectProgress();
+  showToast(entry.mastered ? '✅ Marked as mastered!' : '↩️ Moved back to review');
+}
+
+function clearMasteredErrors() {
+  if (!confirm('Remove all mastered questions from Error Log?')) return;
+  loadErrorLog();
+  errorLog = errorLog.filter(e => !e.mastered);
+  saveErrorLog();
+  renderErrorLog();
+  showToast('🧹 Mastered questions cleared!');
+}
+
+/* ══════════════════════════════════════════
+   DAILY QUIZ — Start / Retry
+══════════════════════════════════════════ */
+async function startDailyQuiz(dateStr) {
+  if (!allQuestions.length) await loadQuestions();
+  const pool = allQuestions.filter(q => q.date === dateStr).sort(() => Math.random() - 0.5);
+  if (!pool.length) { showToast('No daily quiz questions uploaded for this date yet!'); return; }
+  currentQuiz.questions = pool;
+  currentQuiz.index = 0; currentQuiz.correct = 0; currentQuiz.wrong = 0; currentQuiz.timedOut = 0;
+  currentQuiz.chapter = 'Daily Quiz'; currentQuiz.topic = dateStr;
+  currentQuiz.wrongAnswers = []; currentQuiz.isDaily = true; currentQuiz.dailyDate = dateStr;
+  currentQuiz.selectedSubject = '📅 Daily Quiz';
+  showPage('quiz'); renderQuestion();
+}
+
+function retryDailyQuiz() {
+  if (currentQuiz.dailyDate) startDailyQuiz(currentQuiz.dailyDate);
+  else startQuiz();
+}
+
+/* ══════════════════════════════════════════
+   DAILY MATERIAL — async fill on Today view
+══════════════════════════════════════════ */
+async function fillDailyMaterial(dateStr) {
+  const el = document.getElementById('bpDailyMaterial');
+  if (!el) return;
+  if (!allQuestions.length) await loadQuestions();
+  await loadNotes(false);
+
+  const dqs = allQuestions.filter(q => q.date === dateStr);
+  const dns = allNotes.filter(n => n.date === dateStr);
+
+  // Check if student already took today's daily quiz
+  const todayScores = (window.currentUser?.scores || []).filter(s => s.isDaily && s.dailyDate === dateStr);
+  const bestScore = todayScores.length ? Math.max(...todayScores.map(s => s.pct)) : null;
+
+  let quizSection = '';
+  if (dqs.length) {
+    const qCountChip = `<span class="dm-status-chip" style="background:rgba(74,92,47,.1);color:var(--olive)">${dqs.length} Questions</span>`;
+    const subjects = [...new Set(dqs.map(q => q.subject))];
+    const subjChips = subjects.map(s => `<span class="dm-status-chip" style="background:${SUBJ_COLORS[s]||'#4a5c2f'}18;color:${SUBJ_COLORS[s]||'var(--olive)'}">${s}</span>`).join('');
+    let scoreHtml = '';
+    if (bestScore !== null) {
+      const sc = bestScore >= 90 ? '#27ae60' : bestScore >= 75 ? '#4a5c2f' : bestScore >= 60 ? '#d4a006' : '#c0392b';
+      scoreHtml = `<div style="display:flex;align-items:center;gap:.5rem;margin-top:.5rem"><span style="font-family:'Rajdhani',sans-serif;font-size:1.3rem;font-weight:700;color:${sc}">${bestScore}%</span><span style="font-size:.8rem;color:var(--text-muted)">Best score today · ${todayScores.length} attempt${todayScores.length>1?'s':''}</span></div>`;
+    }
+    quizSection = `<div class="dm-status-row">${qCountChip}${subjChips}</div>${scoreHtml}
+      <button class="dm-quiz-btn" onclick="startDailyQuiz('${dateStr}')">
+        <div class="dm-quiz-btn-left">
+          <div class="dm-quiz-btn-title">${bestScore !== null ? '🔄 Retry Today\'s Daily Quiz' : '▶ Start Today\'s Daily Quiz'}</div>
+          <div class="dm-quiz-btn-sub">${dqs.length} questions · All subjects · Timed (90s each)</div>
+        </div>
+        <div class="dm-quiz-btn-right">📝</div>
+      </button>`;
+  } else {
+    quizSection = `<div class="dm-no-material">📅 No daily quiz uploaded for this date yet.<br><span style="font-size:.78rem">Admin: Go to 🛡️ Admin → 📅 Daily to add questions for this date.</span></div>`;
+  }
+
+  let notesSection = '';
+  if (dns.length) {
+    notesSection = dns.map(n => `
+      <div style="margin-top:.8rem">
+        <div style="font-family:'Rajdhani',sans-serif;font-size:.95rem;font-weight:700;color:var(--blue);margin-bottom:.3rem">📖 ${n.title} <span style="font-size:.72rem;color:var(--text-muted);font-family:'Nunito',sans-serif;font-weight:400">${n.subject} › ${n.topic}</span></div>
+        <div class="dm-note-box note-content">${renderMd(n.content||'')}</div>
+        <button class="btn-sec" onclick="openNote('${n.id}')" style="margin-top:.4rem;padding:5px 14px;font-size:.8rem">📖 Open Full Note</button>
+      </div>`).join('');
+  }
+
+  el.innerHTML = `
+    <div class="bp-section-head">📅 Daily Study Material</div>
+    ${quizSection}
+    ${notesSection || (!dqs.length ? '' : `<div style="margin-top:.7rem;font-size:.82rem;color:var(--text-muted)">💡 No study note uploaded for today. Admin can add one via Admin → 📅 Daily.</div>`)}`;
+
+  // Re-render KaTeX if any notes
+  if (dns.length) {
+    setTimeout(() => {
+      el.querySelectorAll('.dm-note-box').forEach(nb => {
+        renderMathInElement(nb, {delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false});
+      });
+    }, 80);
+  }
+}
+
+/* ══════════════════════════════════════════
+   PROGRESS CHART — SVG bar chart
+══════════════════════════════════════════ */
+function renderBpProgress() {
+  const scores = window.currentUser?.scores || [];
+  const today = new Date(); today.setHours(0,0,0,0);
+
+  // Build last 30 days
+  const days = [];
+  for (let i = 29; i >= 0; i--) {
+    const d = new Date(today.getTime() - i * 86400000);
+    const ds = d.toISOString().split('T')[0];
+    const dayScores = scores.filter(s => { const sd=new Date(s.ts); return sd.toISOString().split('T')[0]===ds; });
+    const dailyOnly = dayScores.filter(s => s.isDaily);
+    days.push({
+      date:d, ds,
+      scores:dayScores,
+      avg:dayScores.length ? Math.round(dayScores.reduce((a,b)=>a+b.pct,0)/dayScores.length) : null,
+      dailyPct:dailyOnly.length ? Math.round(dailyOnly.reduce((a,b)=>a+b.pct,0)/dailyOnly.length) : null,
+      isDaily:dailyOnly.length>0
+    });
+  }
+
+  const daysWithScores = days.filter(d=>d.avg!==null);
+  const streak = calcStreak(days);
+  const weeklyAvg = daysWithScores.slice(-7).length ? Math.round(daysWithScores.slice(-7).reduce((a,b)=>a+b.avg,0)/daysWithScores.slice(-7).length) : 0;
+  const allTimeAvg = daysWithScores.length ? Math.round(daysWithScores.reduce((a,b)=>a+b.avg,0)/daysWithScores.length) : 0;
+
+  // Trend: compare last 7 days avg vs prior 7 days avg
+  const prev7 = daysWithScores.slice(-14, -7);
+  const last7 = daysWithScores.slice(-7);
+  const trendDiff = last7.length && prev7.length ? weeklyAvg - Math.round(prev7.reduce((a,b)=>a+b.avg,0)/prev7.length) : null;
+  const trendHtml = trendDiff !== null ? (trendDiff > 0 ? `<span style="color:var(--green);font-weight:700">▲ +${trendDiff}% vs last week</span>` : trendDiff < 0 ? `<span style="color:var(--red);font-weight:700">▼ ${trendDiff}% vs last week</span>` : `<span style="color:#d4a006;font-weight:700">→ No change vs last week</span>`) : '';
+
+  // SVG Chart
+  const visible = days.slice(-21);
+  const W=560, H=175, ML=36, MR=12, MT=18, MB=38;
+  const cW=W-ML-MR, cH=H-MT-MB;
+  const bW=Math.floor(cW/visible.length);
+  const targetY=MT+cH-Math.round(0.75*cH);
+  const passY=MT+cH-Math.round(0.60*cH);
+
+  let bars='', labels='', dots='';
+  visible.forEach((d,i)=>{
+    const x=ML+i*bW, bw=bW-2;
+    if(i%3===0||i===visible.length-1) labels+=`<text x="${x+bw/2}" y="${H-5}" text-anchor="middle" font-size="9" fill="#6b7355">${d.date.getDate()}/${d.date.getMonth()+1}</text>`;
+    if(d.avg!==null){
+      const barH=Math.max(4,Math.round((d.avg/100)*cH));
+      const y=MT+cH-barH;
+      const col=d.avg>=90?'#27ae60':d.avg>=75?'#4a5c2f':d.avg>=60?'#d4a006':'#c0392b';
+      const isToday=d.ds===today.toISOString().split('T')[0];
+      bars+=`<rect x="${x}" y="${y}" width="${bw}" height="${barH}" fill="${col}" rx="3" opacity="${isToday?1:.8}"/>`;
+      if(d.isDaily) bars+=`<circle cx="${x+bw/2}" cy="${y-6}" r="4" fill="${col}" stroke="white" stroke-width="1.5"/>`;
+      if(barH>22) bars+=`<text x="${x+bw/2}" y="${y+13}" text-anchor="middle" font-size="9" fill="white" font-weight="bold">${d.avg}%</text>`;
+      if(isToday) bars+=`<rect x="${x-1}" y="${y-1}" width="${bw+2}" height="${barH+2}" rx="4" fill="none" stroke="var(--olive)" stroke-width="2"/>`;
+    }
+  });
+
+  const svg=`<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;display:block">
+    <line x1="${ML}" y1="${MT}" x2="${ML}" y2="${MT+cH}" stroke="#e0d8cc" stroke-width="1"/>
+    <line x1="${ML}" y1="${MT+cH}" x2="${ML+cW}" y2="${MT+cH}" stroke="#e0d8cc" stroke-width="1"/>
+    <text x="${ML-3}" y="${MT+5}" text-anchor="end" font-size="9" fill="#6b7355">100</text>
+    <text x="${ML-3}" y="${targetY+4}" text-anchor="end" font-size="9" fill="#4a5c2f">75</text>
+    <text x="${ML-3}" y="${passY+4}" text-anchor="end" font-size="9" fill="#d4a006">60</text>
+    <line x1="${ML}" y1="${targetY}" x2="${ML+cW}" y2="${targetY}" stroke="#4a5c2f" stroke-width="1.5" stroke-dasharray="5,3" opacity=".55"/>
+    <text x="${ML+cW-2}" y="${targetY-4}" text-anchor="end" font-size="9" fill="#4a5c2f" font-weight="bold">🎯 AISSEE Target</text>
+    <line x1="${ML}" y1="${passY}" x2="${ML+cW}" y2="${passY}" stroke="#d4a006" stroke-width="1" stroke-dasharray="3,3" opacity=".5"/>
+    ${bars}${labels}
+  </svg>`;
+
+  // Subject breakdown
+  const subjStats={};
+  scores.forEach(s=>{
+    if(!subjStats[s.subject]) subjStats[s.subject]={total:0,sum:0,dailyCount:0};
+    subjStats[s.subject].total++;subjStats[s.subject].sum+=s.pct;
+    if(s.isDaily) subjStats[s.subject].dailyCount++;
+  });
+  const subjHtml=Object.entries(subjStats).sort((a,b)=>b[1].sum/b[1].total-a[1].sum/a[1].total).map(([subj,data])=>{
+    const avg=Math.round(data.sum/data.total);
+    const col=avg>=90?'#27ae60':avg>=75?'#4a5c2f':avg>=60?'#d4a006':'#c0392b';
+    return `<div class="bp-subject-progress"><div class="bp-sp-label"><span class="bp-sp-name">${subj}</span><span class="bp-sp-pct" style="color:${col}">${avg}% · ${data.total} test${data.total>1?'s':''}</span></div><div class="bp-progress-bar"><div class="bp-progress-fill" style="width:${avg}%;background:${col}"></div></div></div>`;
+  }).join('');
+
+  // Daily quiz history table (last 10)
+  const dailyScores = [...scores].filter(s=>s.isDaily).sort((a,b)=>b.ts-a.ts).slice(0,10);
+  const dailyTableHtml = dailyScores.length ? `
+    <div class="bp-today-card" style="margin-top:0">
+      <div class="bp-section-head">📅 Daily Quiz History</div>
+      <table style="width:100%;border-collapse:collapse;font-size:.83rem">
+        <thead><tr>${['Date','Score','Correct','Total','Pass?'].map(h=>`<th style="text-align:left;padding:6px 8px;font-size:.7rem;text-transform:uppercase;color:var(--text-muted);border-bottom:2px solid var(--sand)">${h}</th>`).join('')}</tr></thead>
+        <tbody>${dailyScores.map(s=>{
+          const d=new Date(s.ts).toLocaleDateString('en-IN',{day:'numeric',month:'short'});
+          const col=s.pct>=90?'#27ae60':s.pct>=75?'#4a5c2f':s.pct>=60?'#d4a006':'#c0392b';
+          const pass=s.pct>=60?'<span style="color:var(--green);font-weight:700">✅ Pass</span>':'<span style="color:var(--red);font-weight:700">📕 Retry</span>';
+          return `<tr style="border-bottom:1px solid var(--sand)"><td style="padding:6px 8px">${d}</td><td style="padding:6px 8px;font-family:'Rajdhani',sans-serif;font-size:1.1rem;font-weight:700;color:${col}">${s.pct}%</td><td style="padding:6px 8px;color:var(--green)">${s.correct}</td><td style="padding:6px 8px">${s.total}</td><td style="padding:6px 8px">${pass}</td></tr>`;
+        }).join('')}</tbody>
+      </table>
+    </div>` : '';
+
+  if (!scores.length) return `<div class="lb-empty" style="padding:3rem"><div style="font-size:3rem;margin-bottom:.7rem">📊</div><div style="font-size:1rem;font-weight:700;color:var(--olive-dark)">No quiz scores yet!</div><div style="margin-top:.4rem;font-size:.85rem;color:var(--text-muted)">Take your first quiz to start tracking progress.</div><div style="margin-top:1rem"><button class="btn-start" onclick="showPage('home')">▶ Go to Practice Quiz</button></div></div>`;
+
+  return `
+    <div class="bp-streak-row">
+      <div class="bp-streak-box"><div class="bp-streak-val">${streak}${streak>0?'🔥':''}</div><div class="bp-streak-lbl">Day Streak</div></div>
+      <div class="bp-streak-box"><div class="bp-streak-val">${weeklyAvg}%</div><div class="bp-streak-lbl">This Week<br>${trendHtml}</div></div>
+      <div class="bp-streak-box"><div class="bp-streak-val">${allTimeAvg}%</div><div class="bp-streak-lbl">All-Time Avg</div></div>
+    </div>
+    <div class="bp-today-card" style="padding:1rem">
+      <div class="bp-section-head">📈 Score Trend — Last 21 Days <span style="font-size:.72rem;font-weight:400;color:var(--text-muted)">(• = daily quiz)</span></div>
+      <div class="bp-chart-wrap">${svg}</div>
+      <div class="bp-chart-legend">
+        <span><span class="bp-chart-swatch" style="background:#27ae60"></span>Excellent ≥90%</span>
+        <span><span class="bp-chart-swatch" style="background:#4a5c2f"></span>Target ≥75%</span>
+        <span><span class="bp-chart-swatch" style="background:#d4a006"></span>Pass ≥60%</span>
+        <span><span class="bp-chart-swatch" style="background:#c0392b"></span>Needs Work &lt;60%</span>
+        <span><span style="width:10px;height:10px;border-radius:50%;background:#4a5c2f;border:2px solid white;display:inline-block"></span>Daily Quiz</span>
+      </div>
+    </div>
+    ${subjHtml ? `<div class="bp-today-card"><div class="bp-section-head">📐 Subject-wise Average</div>${subjHtml}</div>` : ''}
+    ${dailyTableHtml}`;
+}
+
+function calcStreak(days) {
+  const today = new Date(); today.setHours(0,0,0,0);
+  let streak = 0;
+  for (let i = days.length - 1; i >= 0; i--) {
+    if (days[i].avg !== null) streak++;
+    else if (days[i].date.getTime() < today.getTime()) break;
+  }
+  return streak;
+}
+
+/* ══════════════════════════════════════════
+   ADMIN — Daily Panel
+══════════════════════════════════════════ */
+function setDailyDateToday() {
+  const el = document.getElementById('dailyDate');
+  if (el) { el.value = new Date().toISOString().split('T')[0]; }
+}
+
+async function renderDailyPanel() {
+  const dateStr = document.getElementById('dailyDate')?.value;
+  const el = document.getElementById('dailyPanelContent');
+  if (!el) return;
+  if (!dateStr) { el.innerHTML = '<div class="lb-empty">Select a date first.</div>'; return; }
+  el.innerHTML = '<div class="lb-empty">⏳ Loading…</div>';
+  if (!allQuestions.length) await loadQuestions();
+  await loadNotes(false);
+
+  const dqs = allQuestions.filter(q => q.date === dateStr);
+  const dns = allNotes.filter(n => n.date === dateStr);
+  const keys = ['A','B','C','D'];
+  const qStatus = dqs.length >= 20 ? '✅ Ready' : dqs.length > 0 ? `⚠️ ${dqs.length} (aim 20+)` : '❌ None';
+  const nStatus = dns.length > 0 ? `✅ ${dns.length} note${dns.length>1?'s':''}` : '❌ None';
+  const readyAll = dqs.length >= 20 && dns.length > 0;
+
+  el.innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:.7rem;margin-bottom:1rem">
+      <div style="background:var(--cream);border-radius:12px;padding:.8rem;text-align:center">
+        <div style="font-family:'Rajdhani',sans-serif;font-size:1.6rem;font-weight:700;color:var(--olive)">${dqs.length}</div>
+        <div style="font-size:.7rem;color:var(--text-muted);text-transform:uppercase">Questions<br>${qStatus}</div>
+      </div>
+      <div style="background:var(--cream);border-radius:12px;padding:.8rem;text-align:center">
+        <div style="font-family:'Rajdhani',sans-serif;font-size:1.6rem;font-weight:700;color:var(--olive)">${dns.length}</div>
+        <div style="font-size:.7rem;color:var(--text-muted);text-transform:uppercase">Notes<br>${nStatus}</div>
+      </div>
+      <div style="background:${readyAll?'rgba(39,174,96,.1)':'rgba(200,184,122,.2)'};border-radius:12px;padding:.8rem;text-align:center">
+        <div style="font-size:1.8rem">${readyAll?'🟢':'🟡'}</div>
+        <div style="font-size:.7rem;color:var(--text-muted);text-transform:uppercase">${readyAll?'Day Ready!':'Incomplete'}</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1rem">
+      <button class="btn-sm" onclick="quickAddForDate('${dateStr}')">➕ Add Question for ${dateStr}</button>
+      <button class="btn-sm" onclick="quickAddNoteForDate('${dateStr}')" style="background:var(--blue)">✏️ Add Note for ${dateStr}</button>
+    </div>
+    ${dqs.length ? `
+    <div style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:1rem;color:var(--olive-dark);margin:.5rem 0 .4rem">📝 Questions (${dqs.length})</div>
+    <div style="overflow-x:auto;max-height:300px;overflow-y:auto;border:2px solid var(--sand);border-radius:10px">
+      <table class="q-list-table" style="margin:0"><thead style="position:sticky;top:0;background:var(--white);z-index:1"><tr><th>#</th><th>Subject</th><th>Chapter/Topic</th><th>Question</th><th>Ans</th><th>Del</th></tr></thead>
+      <tbody>${dqs.map((q,i)=>`<tr>
+        <td style="color:var(--text-muted)">${i+1}</td>
+        <td><span class="badge badge-olive">${q.subject}</span></td>
+        <td>${q.chapter||'–'}<br><span style="font-size:.7rem;color:var(--text-muted)">${q.topic||''}</span></td>
+        <td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${q.question}</td>
+        <td style="font-weight:700;color:var(--olive)">${keys[parseInt(q.correct)]||'?'}</td>
+        <td><button class="btn-danger-sm" onclick="deleteQuestion('${q.id}');setTimeout(renderDailyPanel,500)">🗑</button></td>
+      </tr>`).join('')}</tbody></table>
+    </div>` : `<div style="background:var(--cream);border-radius:10px;padding:.8rem 1rem;font-size:.85rem;color:var(--text-muted)">No questions for ${dateStr}. Use "Add Question" above and assign this date.</div>`}
+    ${dns.length ? `
+    <div style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:1rem;color:var(--olive-dark);margin:.8rem 0 .4rem">📖 Notes (${dns.length})</div>
+    ${dns.map(n=>`<div style="background:var(--cream);border-radius:10px;padding:.7rem 1rem;margin-bottom:.4rem;display:flex;justify-content:space-between;align-items:center;gap:.5rem;flex-wrap:wrap">
+      <div><strong>${n.title}</strong><br><span style="font-size:.75rem;color:var(--text-muted)">${n.subject} › ${n.chapter} › ${n.topic}</span></div>
+      <div style="display:flex;gap:.3rem"><button class="btn-sm" onclick="editNote('${n.id}')" style="padding:4px 10px;font-size:.75rem">✏️ Edit</button><button class="btn-danger-sm" onclick="deleteNote('${n.id}');setTimeout(renderDailyPanel,500)">🗑</button></div>
+    </div>`).join('')}` : ''}`;
+}
+
+function quickAddForDate(dateStr) { adminTab('addq'); setTimeout(()=>{ const el=document.getElementById('aDate'); if(el)el.value=dateStr; },150); }
+function quickAddNoteForDate(dateStr) { adminTab('addn'); setTimeout(()=>{ const el=document.getElementById('nDate'); if(el)el.value=dateStr; },150); }
 </script>
 </body>
 </html>
