@@ -1809,6 +1809,8 @@ async function syncCurrentUserToFirestore(){
 
 function esc(s){return(s||'').replace(/'/g,"\\'")}
 function timeAgo(ts){if(!ts)return'recently';const s=Math.floor((Date.now()-ts)/1000);if(s<60)return'just now';if(s<3600)return Math.floor(s/60)+'m ago';if(s<86400)return Math.floor(s/3600)+'h ago';if(s<604800)return Math.floor(s/86400)+'d ago';return new Date(ts).toLocaleDateString('en-IN')}
+// Use LOCAL date parts — never toISOString() which converts to UTC and shifts the date in IST
+function localDateStr(d){const dt=d||new Date();return dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0')}
 
 /* ══════════════════════════════════════════
    BATTLE PLAN — CORE DATA
@@ -2157,7 +2159,7 @@ function renderBpView() {
   if (!el) return;
   if (bpCurrentView === 'today') {
     el.innerHTML = renderBpToday();
-    const dateStr = bpCurrentDate.toISOString().split('T')[0];
+    const dateStr = localDateStr(bpCurrentDate);
     fillDailyMaterial(dateStr);
   }
   else if (bpCurrentView === 'week') el.innerHTML = renderBpWeek();
@@ -2169,7 +2171,7 @@ function renderBpView() {
 
 function renderBpToday() {
   const plan = getDayPlan(bpCurrentDate);
-  const dateKey = bpCurrentDate.toISOString().split('T')[0];
+  const dateKey = localDateStr(bpCurrentDate);
   const today = new Date(); today.setHours(0,0,0,0);
   const isToday = bpCurrentDate.getTime() === today.getTime();
 
@@ -2285,7 +2287,7 @@ function renderBpWeek() {
     const plan = getDayPlan(day);
     const isToday = day.getTime() === today.getTime();
     const isPast = day < today;
-    const dateKey = day.toISOString().split('T')[0];
+    const dateKey = localDateStr(day);
     const mainDone = bpCompletedTopics[dateKey + '-main'];
     const secDone = bpCompletedTopics[dateKey + '-sec'];
     
@@ -2671,8 +2673,8 @@ function renderBpProgress() {
   const days = [];
   for (let i = 29; i >= 0; i--) {
     const d = new Date(today.getTime() - i * 86400000);
-    const ds = d.toISOString().split('T')[0];
-    const dayScores = scores.filter(s => { const sd=new Date(s.ts); return sd.toISOString().split('T')[0]===ds; });
+    const ds = localDateStr(d);
+    const dayScores = scores.filter(s => { const sd=new Date(s.ts); return localDateStr(sd)===ds; });
     const dailyOnly = dayScores.filter(s => s.isDaily);
     days.push({
       date:d, ds,
@@ -2710,7 +2712,7 @@ function renderBpProgress() {
       const barH=Math.max(4,Math.round((d.avg/100)*cH));
       const y=MT+cH-barH;
       const col=d.avg>=90?'#27ae60':d.avg>=75?'#4a5c2f':d.avg>=60?'#d4a006':'#c0392b';
-      const isToday=d.ds===today.toISOString().split('T')[0];
+      const isToday=d.ds===localDateStr(today);
       bars+=`<rect x="${x}" y="${y}" width="${bw}" height="${barH}" fill="${col}" rx="3" opacity="${isToday?1:.8}"/>`;
       if(d.isDaily) bars+=`<circle cx="${x+bw/2}" cy="${y-6}" r="4" fill="${col}" stroke="white" stroke-width="1.5"/>`;
       if(barH>22) bars+=`<text x="${x+bw/2}" y="${y+13}" text-anchor="middle" font-size="9" fill="white" font-weight="bold">${d.avg}%</text>`;
@@ -2797,7 +2799,7 @@ function calcStreak(days) {
 ══════════════════════════════════════════ */
 function setDailyDateToday() {
   const el = document.getElementById('dailyDate');
-  if (el) { el.value = new Date().toISOString().split('T')[0]; }
+  if (el) { el.value = localDateStr(); }
 }
 
 async function renderDailyPanel() {
@@ -2953,7 +2955,7 @@ _pnStartActiveTimer();
 
 // ── Daily log helpers ───────────────────────────────────────
 function pnDateKey(dateStr) {
-  return 'pr_log_' + (dateStr || new Date().toISOString().slice(0, 10));
+  return 'pr_log_' + (dateStr || localDateStr());
 }
 function pnGetTodayLog() {
   try { return JSON.parse(localStorage.getItem(pnDateKey()) || '{}'); } catch { return {}; }
@@ -2962,7 +2964,7 @@ function pnGetLogFor(dateStr) {
   try { return JSON.parse(localStorage.getItem(pnDateKey(dateStr)) || '{}'); } catch { return {}; }
 }
 function pnSaveTodayLog(log) {
-  log.date = new Date().toISOString().slice(0, 10);
+  log.date = localDateStr();
   localStorage.setItem(pnDateKey(), JSON.stringify(log));
 }
 
@@ -3078,7 +3080,7 @@ function pnToggleWaFields() {
 // ── Report builder ──────────────────────────────────────────
 function pnBuildReport(log) {
   const s = pnLoadSettings();
-  const dateStr = log.date || new Date().toISOString().slice(0, 10);
+  const dateStr = log.date || localDateStr();
   const [y, m, d] = dateStr.split('-');
   const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   const dateLabel = `${d} ${months[+m - 1]} ${y}`;
@@ -3248,7 +3250,7 @@ function pnOpenMailto() {
   const s   = pnLoadSettings();
   const log = pnGetTodayLog();
   const msg = pnBuildReport(log);
-  const today = log.date || new Date().toISOString().slice(0, 10);
+  const today = log.date || localDateStr();
   const to      = encodeURIComponent(s.parentEmail || '');
   const subject = encodeURIComponent(`SainikPrep Report — ${today}`);
   const body    = encodeURIComponent(msg);
@@ -3273,7 +3275,7 @@ async function pnSendNow(dateStr) {
   const log = dateStr ? pnGetLogFor(dateStr) : pnGetTodayLog();
   const msg = pnBuildReport(log);
   const s   = pnLoadSettings();
-  const today = log.date || new Date().toISOString().slice(0, 10);
+  const today = log.date || localDateStr();
   const subj  = `SainikPrep Report — ${today}`;
   const statusEl = document.getElementById('pnSendStatus');
 
@@ -3375,11 +3377,11 @@ pnRestartScheduler();
 function aiPromptInit() {
   // Set date input to today
   const el = document.getElementById('aiPromptDate');
-  if (el && !el.value) el.value = new Date().toISOString().slice(0, 10);
+  if (el && !el.value) el.value = localDateStr();
 }
 
 function generateAIPrompt() {
-  const dateStr  = document.getElementById('aiPromptDate')?.value || new Date().toISOString().slice(0, 10);
+  const dateStr  = document.getElementById('aiPromptDate')?.value || localDateStr();
   const count    = parseInt(document.getElementById('aiPromptCount')?.value || '20');
   const overSub  = (document.getElementById('aiPromptSubject')?.value || '').trim();
   const overTopic= (document.getElementById('aiPromptTopic')?.value || '').trim();
