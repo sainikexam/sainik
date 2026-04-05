@@ -18,7 +18,34 @@ import{getFirestore,doc,setDoc,getDoc,collection,addDoc,getDocs,deleteDoc,update
 const firebaseConfig={apiKey:"AIzaSyDAEMXwHWghLyBrzzrz9nn6hx6_EUfK-20",authDomain:"aissee-quiz.firebaseapp.com",projectId:"aissee-quiz",storageBucket:"aissee-quiz.firebasestorage.app",messagingSenderId:"1092597007967",appId:"1:1092597007967:web:93958b401b31167f4fbdea"};
 const app=initializeApp(firebaseConfig),auth=getAuth(app),db=getFirestore(app);
 window._FB={auth,db,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut,onAuthStateChanged,doc,setDoc,getDoc,collection,addDoc,getDocs,deleteDoc,updateDoc,query,orderBy,arrayUnion,where};
-onAuthStateChanged(auth,async u=>{if(u){const s=await getDoc(doc(db,'users',u.uid));if(s.exists()){window.currentUser={uid:u.uid,email:u.email,...s.data()};document.getElementById('adminNavBtn').style.display=window.currentUser.isAdmin?'':'none';document.getElementById('userInfo').textContent=window.currentUser.name;hideLoader();showPage('home');loadBookmarks()}}else{window.currentUser=null;hideLoader();showPage('login')}});
+onAuthStateChanged(auth,async u=>{
+  if(u){
+    try{
+      const s=await getDoc(doc(db,'users',u.uid));
+      if(s.exists()){
+        window.currentUser={uid:u.uid,email:u.email,...s.data()};
+      } else {
+        // Auth succeeded but Firestore doc missing — create it now
+        const fallback={name:u.displayName||u.email.split('@')[0],email:u.email,isAdmin:false,scores:[],createdAt:Date.now()};
+        await setDoc(doc(db,'users',u.uid),fallback);
+        window.currentUser={uid:u.uid,email:u.email,...fallback};
+      }
+      document.getElementById('adminNavBtn').style.display=window.currentUser.isAdmin?'':'none';
+      document.getElementById('userInfo').textContent=window.currentUser.name;
+      hideLoader();showPage('home');loadBookmarks();
+    }catch(err){
+      console.error('Firestore error:',err);
+      hideLoader();
+      // Show a helpful message instead of freezing
+      document.getElementById('page-login').classList.add('active');
+      const errEl=document.getElementById('loginErr');
+      errEl.textContent='Database error: '+err.message+'. Check Firestore Rules in Firebase Console.';
+      errEl.classList.add('show');
+    }
+  } else {
+    window.currentUser=null;hideLoader();showPage('login');
+  }
+});
 </script>
 
 <style>
@@ -846,7 +873,11 @@ textarea.form-input{resize:vertical;min-height:80px}
     <div class="admin-panel" id="apUsers">
       <div class="admin-form" style="padding:1rem">
         <h3>👤 Users</h3>
-        <table class="q-list-table"><thead><tr><th>Name</th><th>Email</th><th>Tests</th><th>Avg</th><th>Best</th></tr></thead><tbody id="usersBody"></tbody></table>
+        <div style="background:var(--sand);border-radius:10px;padding:.7rem 1rem;margin-bottom:.8rem;font-size:.82rem;border-left:4px solid var(--olive-light);line-height:1.7">
+          <strong>To make someone Admin:</strong> Click <strong>"★ Make Admin"</strong> next to their name. Admin users can see the 🛡️ Admin panel and add questions/notes.<br>
+          <strong>First admin:</strong> go to <a href="https://console.firebase.google.com" target="_blank" style="color:var(--olive);font-weight:700">Firebase Console</a> → Firestore → users → find your UID → set <code style="background:var(--white);padding:1px 5px;border-radius:4px">isAdmin: true</code> manually.
+        </div>
+        <table class="q-list-table"><thead><tr><th>Name</th><th>Email</th><th>Tests</th><th>Avg</th><th>Best</th><th>Role</th></tr></thead><tbody id="usersBody"></tbody></table>
       </div>
     </div>
   </div>
@@ -976,8 +1007,20 @@ async function doRegister(){
   const n=document.getElementById('regName').value.trim(),e=document.getElementById('regEmail').value.trim(),p=document.getElementById('regPass').value,err=document.getElementById('regErr'),btn=document.getElementById('regBtn');
   if(!n){err.textContent='Enter your name';err.classList.add('show');return}
   err.classList.remove('show');btn.disabled=true;btn.textContent='Creating…';
-  try{const c=await window._FB.createUserWithEmailAndPassword(window._FB.auth,e,p);await window._FB.setDoc(window._FB.doc(window._FB.db,'users',c.user.uid),{name:n,email:e,isAdmin:false,scores:[],createdAt:Date.now()})}
-  catch(ex){err.textContent=friendlyErr(ex.code);err.classList.add('show');btn.disabled=false;btn.textContent='Create Account →'}
+  let cred;
+  try{
+    cred=await window._FB.createUserWithEmailAndPassword(window._FB.auth,e,p);
+  }catch(ex){
+    err.textContent=friendlyErr(ex.code);err.classList.add('show');btn.disabled=false;btn.textContent='Create Account →';return;
+  }
+  try{
+    await window._FB.setDoc(window._FB.doc(window._FB.db,'users',cred.user.uid),{name:n,email:e,isAdmin:false,scores:[],createdAt:Date.now()});
+  }catch(ex){
+    // Auth created but Firestore write failed — show exact error
+    err.textContent='⚠️ Account created but profile save failed. Firestore Rules may be blocking writes. Error: '+ex.message;
+    err.classList.add('show');
+    btn.disabled=false;btn.textContent='Create Account →';
+  }
 }
 function friendlyErr(c){const m={'auth/invalid-email':'Invalid email.','auth/user-not-found':'No account found.','auth/wrong-password':'Wrong password.','auth/email-already-in-use':'Email already registered.','auth/weak-password':'Password must be 6+ characters.','auth/invalid-credential':'Invalid email or password.','auth/too-many-requests':'Too many attempts.'};return m[c]||'Something went wrong.'}
 
@@ -1497,7 +1540,29 @@ async function deleteNote(id){if(!confirm('Delete note?'))return;await window._F
 /* USERS */
 async function renderUsers(){
   const snap=await window._FB.getDocs(window._FB.collection(window._FB.db,'users'));
-  document.getElementById('usersBody').innerHTML=snap.docs.map(d=>{const u=d.data(),sc=u.scores||[],avg=sc.length?Math.round(sc.reduce((a,b)=>a+b.pct,0)/sc.length)+'%':'–',best=sc.length?Math.max(...sc.map(s=>s.pct))+'%':'–';return `<tr><td><strong>${u.name}</strong>${u.isAdmin?' 🛡️':''}</td><td>${u.email}</td><td>${sc.length}</td><td>${avg}</td><td>${best}</td></tr>`}).join('');
+  const rows=snap.docs.map(d=>({id:d.id,...d.data()}));
+  document.getElementById('usersBody').innerHTML=rows.map(u=>{
+    const sc=u.scores||[],avg=sc.length?Math.round(sc.reduce((a,b)=>a+b.pct,0)/sc.length)+'%':'–',best=sc.length?Math.max(...sc.map(s=>s.pct))+'%':'–';
+    const adminBadge=u.isAdmin?'<span style="background:var(--olive);color:var(--white);font-size:.68rem;padding:2px 7px;border-radius:10px;font-weight:700">ADMIN</span>':'';
+    const adminBtn=u.isAdmin
+      ?`<button class="btn-danger-sm" onclick="toggleAdmin('${u.id}',false)">↓ Remove Admin</button>`
+      :`<button class="btn-sm" style="padding:4px 10px;font-size:.75rem" onclick="toggleAdmin('${u.id}',true)">★ Make Admin</button>`;
+    return `<tr>
+      <td><strong>${u.name}</strong> ${adminBadge}</td>
+      <td style="font-size:.8rem;color:var(--text-muted)">${u.email}</td>
+      <td>${sc.length}</td><td>${avg}</td><td>${best}</td>
+      <td>${adminBtn}</td>
+    </tr>`;
+  }).join('');
+}
+async function toggleAdmin(uid,makeAdmin){
+  const label=makeAdmin?'Make this user an admin?':'Remove admin access from this user?';
+  if(!confirm(label))return;
+  try{
+    await window._FB.updateDoc(window._FB.doc(window._FB.db,'users',uid),{isAdmin:makeAdmin});
+    showToast(makeAdmin?'★ Admin access granted!':'↓ Admin access removed.');
+    renderUsers();
+  }catch(e){showToast('❌ '+e.message);}
 }
 
 function esc(s){return(s||'').replace(/'/g,"\\'")}
