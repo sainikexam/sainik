@@ -2975,38 +2975,132 @@ function pnBuildReport(log) {
   const studentName = s.studentName || window.currentUser?.name || 'Samarth';
 
   const active  = log.activeMinutes || 0;
-  const topics  = log.topics  || [];
+  const topics  = log.topics  || [];   // topics ticked by student
   const quizzes = log.quizzes || [];
-  const absent  = active === 0 && topics.length === 0 && quizzes.length === 0;
+
+  // ── Scheduled syllabus for today from Battle Plan ──────────
+  let scheduledMain = '', scheduledSec = '', scheduledRevision = [];
+  try {
+    const dateObj = new Date(dateStr + 'T00:00:00');
+    const plan = getDayPlan(dateObj);
+    if (plan) {
+      scheduledMain     = plan.mainSubject  ? `${plan.mainSubject}: ${plan.mainTopic}` : '';
+      scheduledSec      = plan.secSubject   ? `${plan.secSubject}: ${plan.secTopic}`   : '';
+      scheduledRevision = (plan.revisionTopics || []).map(r => `${r.subject}: ${r.topic}`);
+    }
+  } catch(e) {}
+
+  // ── Notes uploaded for today (from Firestore cache) ────────
+  let todayNotes = [];
+  try {
+    todayNotes = (allNotes || []).filter(n => n.date === dateStr);
+  } catch(e) {}
+
+  // ── Quiz analysis ──────────────────────────────────────────
+  const avgPct = quizzes.length
+    ? Math.round(quizzes.reduce((a, q) => a + q.pct, 0) / quizzes.length) : null;
+  const grade = avgPct === null ? '' :
+    avgPct >= 90 ? 'OUTSTANDING' :
+    avgPct >= 75 ? 'TARGET ACHIEVED (75%+)' :
+    avgPct >= 60 ? 'PASSED' : 'NEEDS IMPROVEMENT';
+  const gradeIcon = avgPct === null ? '' :
+    avgPct >= 90 ? '🏆' : avgPct >= 75 ? '✅' : avgPct >= 60 ? '💪' : '📕';
+
+  // ── Absent check ───────────────────────────────────────────
+  const absent = active === 0 && topics.length === 0 && quizzes.length === 0;
+
+  const divider = '─'.repeat(38);
 
   if (absent) {
-    return `⚠️ SAINIKPREP ABSENT ALERT — ${dateLabel}\nStudent: ${studentName}\n\nNo study activity was recorded today.\nPlease check in with ${studentName} and ensure the study session happens.`;
+    let msg = `⚠️ SAINIKPREP — NO ACTIVITY ALERT\n`;
+    msg += `${divider}\n`;
+    msg += `Student : ${studentName}\n`;
+    msg += `Date    : ${dateLabel}\n`;
+    msg += `${divider}\n\n`;
+    msg += `No study activity was recorded today.\n`;
+    msg += `The app was either not opened or no topics were studied.\n\n`;
+    if (scheduledMain) {
+      msg += `📋 What was scheduled for today:\n`;
+      msg += `• Main   : ${scheduledMain}\n`;
+      if (scheduledSec) msg += `• Second : ${scheduledSec}\n`;
+      if (scheduledRevision.length) {
+        msg += `• Revision: ${scheduledRevision.join(', ')}\n`;
+      }
+      msg += `\n`;
+    }
+    msg += `Please check in with ${studentName} and ensure the study session happens.\n`;
+    msg += `\n— SainikPrep App`;
+    return msg;
   }
 
-  const avgPct = quizzes.length
-    ? Math.round(quizzes.reduce((a, q) => a + q.pct, 0) / quizzes.length)
-    : null;
-  const grade = avgPct === null ? '' :
-    avgPct >= 90 ? '🏆 OUTSTANDING' :
-    avgPct >= 75 ? '✅ TARGET ACHIEVED' :
-    avgPct >= 60 ? '💪 PASSED' : '📕 NEEDS IMPROVEMENT';
+  // ── Build full report ──────────────────────────────────────
+  let msg = `📚 SAINIKPREP DAILY REPORT\n`;
+  msg += `${divider}\n`;
+  msg += `Student : ${studentName}\n`;
+  msg += `Date    : ${dateLabel}\n`;
+  msg += `Active Study Time: ${active} min${active !== 1 ? 's' : ''}\n`;
+  msg += `${divider}\n`;
 
-  let msg = `📚 SAINIKPREP DAILY REPORT — ${dateLabel}\n`;
-  msg += `Student: ${studentName}\n`;
-  msg += `Active Study Time: ${active} minute${active !== 1 ? 's' : ''}\n`;
+  // Section 1 — Today's scheduled syllabus
+  msg += `\n📋 TODAY'S SCHEDULED SYLLABUS\n`;
+  if (scheduledMain) {
+    msg += `  Main Topic   : ${scheduledMain}\n`;
+    msg += `  Second Topic : ${scheduledSec || '—'}\n`;
+    if (scheduledRevision.length) {
+      msg += `  Revision     :\n`;
+      scheduledRevision.forEach(r => { msg += `    • ${r}\n`; });
+    }
+  } else {
+    msg += `  (No battle plan data for this date)\n`;
+  }
 
+  // Section 2 — Notes uploaded for today
+  msg += `\n📒 TODAY'S STUDY NOTES (uploaded by teacher)\n`;
+  if (todayNotes.length) {
+    todayNotes.forEach(n => {
+      msg += `  • ${n.subject} › ${n.chapter} › ${n.topic}\n`;
+      msg += `    "${n.title}"\n`;
+    });
+  } else {
+    msg += `  No notes were uploaded for today.\n`;
+  }
+
+  // Section 3 — Topics actually studied (ticked by student)
+  msg += `\n✅ TOPICS COMPLETED BY ${studentName.toUpperCase()}\n`;
   if (topics.length) {
-    msg += `\n📝 Topics Studied (${topics.length}):\n`;
-    topics.forEach(t => { msg += `• ${t}\n`; });
+    topics.forEach(t => { msg += `  ✔ ${t}\n`; });
+  } else {
+    msg += `  No topics were marked as done today.\n`;
   }
 
+  // Cross-check: scheduled vs completed
+  if (scheduledMain && topics.length) {
+    const mainDone = topics.some(t => t.toLowerCase().includes((scheduledMain.split(':')[1]||'').trim().toLowerCase().slice(0,10)));
+    if (!mainDone) msg += `  ⚠️ Main scheduled topic not yet ticked as complete.\n`;
+  }
+
+  // Section 4 — Quiz results
+  msg += `\n🎯 QUIZ PERFORMANCE\n`;
   if (quizzes.length) {
-    msg += `\n🎯 Quizzes Taken (${quizzes.length}):\n`;
-    quizzes.forEach(q => { msg += `• ${q.subject} — ${q.score}/${q.total} (${q.pct}%) at ${q.time}\n`; });
-    if (avgPct !== null) msg += `\nOverall Average: ${avgPct}% — ${grade}\n`;
+    quizzes.forEach((q, i) => {
+      const bar = '█'.repeat(Math.round(q.pct / 10)) + '░'.repeat(10 - Math.round(q.pct / 10));
+      msg += `  Quiz ${i + 1}: ${q.subject}\n`;
+      msg += `    Score : ${q.score}/${q.total} (${q.pct}%)\n`;
+      msg += `    [${bar}] ${q.pct}%\n`;
+      msg += `    Time  : ${q.time}\n`;
+    });
+    msg += `\n  ${gradeIcon} Overall: ${avgPct}% — ${grade}\n`;
+    if (avgPct < 75) {
+      msg += `  AISSEE target is 75%. Gap: ${75 - avgPct}% to bridge.\n`;
+    }
+  } else {
+    msg += `  ❌ No quiz was taken today.\n`;
+    msg += `  Please ensure ${studentName} attempts the daily quiz.\n`;
   }
 
-  msg += `\n— SainikPrep App`;
+  msg += `\n${divider}\n`;
+  msg += `— SainikPrep App  |  AISSEE 2027 Prep\n`;
+  msg += `Keep pushing, ${studentName}! 💪`;
   return msg;
 }
 
