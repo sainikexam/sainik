@@ -9,6 +9,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.1/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 
 <!-- FIREBASE -->
 <script type="module">
@@ -705,6 +706,7 @@ textarea.form-input{resize:vertical;min-height:80px}
       <button class="admin-tab" onclick="adminTab('listn')">📑 Notes</button>
       <button class="admin-tab" onclick="adminTab('daily')">📅 Daily</button>
       <button class="admin-tab" onclick="adminTab('users')">👤 Users</button>
+      <button class="admin-tab" onclick="adminTab('report')">📣 Report</button>
     </div>
 
     <!-- ADD QUESTION -->
@@ -915,6 +917,93 @@ textarea.form-input{resize:vertical;min-height:80px}
           <button class="btn-sm" onclick="renderUsers()" style="background:var(--olive-light)">↺ Refresh List</button>
         </div>
         <table class="q-list-table"><thead><tr><th>Name</th><th>Email</th><th>Tests</th><th>Avg</th><th>Best</th><th>Role</th></tr></thead><tbody id="usersBody"></tbody></table>
+      </div>
+    </div>
+
+    <!-- PARENT NOTIFICATION REPORT -->
+    <div class="admin-panel" id="apReport">
+      <div class="admin-form">
+        <h3>📣 Parent Notification Settings</h3>
+        <div style="background:linear-gradient(135deg,#e8f5e9,#f1f8e9);border-radius:12px;padding:.9rem 1.1rem;margin-bottom:1.2rem;font-size:.82rem;border-left:4px solid #43a047;line-height:1.8;color:#2e7d32">
+          <strong>How it works:</strong> The app automatically tracks Samarth's active study time — it only counts time when the screen is visible and he is not idle (stops counting after 2 minutes of no activity). Topics studied and quiz scores are logged every day. At the time you set below, a daily report is auto-sent to the parent via Email and/or WhatsApp. If there is zero activity, an <em>absent alert</em> is sent instead.
+        </div>
+
+        <!-- General -->
+        <div class="form-row">
+          <div><label class="form-label">Parent Name</label><input class="form-input" id="pnParentName" placeholder="e.g. Ravi Kumar"/></div>
+          <div><label class="form-label">Student Name (for report)</label><input class="form-input" id="pnStudentName" placeholder="e.g. Samarth"/></div>
+        </div>
+        <div class="form-row">
+          <div><label class="form-label">⏰ Daily Report Time</label><input class="form-input" type="time" id="pnReportTime" value="21:00" style="max-width:160px"/></div>
+          <div style="display:flex;align-items:flex-end;padding-bottom:2px">
+            <span style="font-size:.78rem;color:var(--text-muted);line-height:1.5">Report fires automatically once per day at this time.<br>Device must be on and browser open at that moment.</span>
+          </div>
+        </div>
+
+        <!-- EMAIL -->
+        <div style="margin:1rem 0 .5rem;border-top:1px solid var(--sand);padding-top:.9rem">
+          <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.6rem">
+            <label style="font-family:'Rajdhani',sans-serif;font-size:1rem;font-weight:700;color:var(--olive-dark)">📧 Email via EmailJS</label>
+            <span style="background:#e3f2fd;color:#1565c0;border-radius:20px;padding:2px 10px;font-size:.72rem;font-weight:700">FREE · 200 emails/month</span>
+          </div>
+          <div style="background:var(--sand);border-radius:10px;padding:.7rem 1rem;font-size:.78rem;margin-bottom:.7rem;line-height:1.7">
+            1️⃣ Sign up free at <a href="https://www.emailjs.com" target="_blank" style="color:var(--olive);font-weight:700">emailjs.com</a><br>
+            2️⃣ Add an Email Service (Gmail / Outlook) → copy <strong>Service ID</strong><br>
+            3️⃣ Create a template → set body to <code style="background:#fff;padding:1px 5px;border-radius:4px">{{message}}</code> → copy <strong>Template ID</strong><br>
+            4️⃣ Account → API Keys → copy <strong>Public Key</strong>
+          </div>
+          <label style="display:flex;align-items:center;gap:.5rem;font-size:.88rem;margin-bottom:.7rem;cursor:pointer">
+            <input type="checkbox" id="pnEmailEnabled" onchange="pnToggleEmailFields()"/> Enable email reports
+          </label>
+          <div id="pnEmailFields" style="display:none">
+            <div class="form-row">
+              <div><label class="form-label">Parent Email</label><input class="form-input" type="email" id="pnParentEmail" placeholder="parent@gmail.com"/></div>
+              <div><label class="form-label">EmailJS Service ID</label><input class="form-input" id="pnEjServiceId" placeholder="service_xxxxxxx"/></div>
+            </div>
+            <div class="form-row">
+              <div><label class="form-label">EmailJS Template ID</label><input class="form-input" id="pnEjTemplateId" placeholder="template_xxxxxxx"/></div>
+              <div><label class="form-label">EmailJS Public Key</label><input class="form-input" id="pnEjPublicKey" placeholder="xxxxxxxxxxxxxxxxxxxx"/></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- WHATSAPP -->
+        <div style="margin:.5rem 0 .5rem;border-top:1px solid var(--sand);padding-top:.9rem">
+          <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.6rem">
+            <label style="font-family:'Rajdhani',sans-serif;font-size:1rem;font-weight:700;color:var(--olive-dark)">💬 WhatsApp via Callmebot</label>
+            <span style="background:#e8f5e9;color:#2e7d32;border-radius:20px;padding:2px 10px;font-size:.72rem;font-weight:700">100% FREE</span>
+          </div>
+          <div style="background:var(--sand);border-radius:10px;padding:.7rem 1rem;font-size:.78rem;margin-bottom:.7rem;line-height:1.7">
+            1️⃣ Save <strong>+34 644 59 93 92</strong> as "CallMeBot" in your WhatsApp contacts<br>
+            2️⃣ Send this WhatsApp message to that number: <code style="background:#fff;padding:1px 5px;border-radius:4px">I allow callmebot to send me messages</code><br>
+            3️⃣ You will receive an <strong>API Key</strong> in reply — paste it below<br>
+            4️⃣ Enter your WhatsApp number with country code (no + sign, e.g. <strong>919876543210</strong>)
+          </div>
+          <label style="display:flex;align-items:center;gap:.5rem;font-size:.88rem;margin-bottom:.7rem;cursor:pointer">
+            <input type="checkbox" id="pnWaEnabled" onchange="pnToggleWaFields()"/> Enable WhatsApp reports
+          </label>
+          <div id="pnWaFields" style="display:none">
+            <div class="form-row">
+              <div><label class="form-label">WhatsApp Number (no + sign)</label><input class="form-input" id="pnWaPhone" placeholder="919876543210" inputmode="numeric"/></div>
+              <div><label class="form-label">Callmebot API Key</label><input class="form-input" id="pnWaApiKey" placeholder="1234567"/></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Buttons -->
+        <div style="display:flex;gap:.6rem;flex-wrap:wrap;margin-top:1rem">
+          <button class="btn" onclick="pnSaveSettingsFromForm()" style="padding:.5rem 1.1rem">💾 Save Settings</button>
+          <button class="btn" onclick="pnSendNow()" style="padding:.5rem 1.1rem;background:var(--olive-light)">📤 Send Today's Report Now</button>
+          <button class="btn" onclick="pnSendTest()" style="padding:.5rem 1.1rem;background:#f39c12;color:#fff">🧪 Send Test Message</button>
+        </div>
+        <div id="pnSendStatus" style="margin-top:.6rem;font-size:.83rem;display:none"></div>
+
+        <!-- Today preview -->
+        <div style="margin-top:1.2rem;border-top:1px solid var(--sand);padding-top:.9rem">
+          <div style="font-family:'Rajdhani',sans-serif;font-size:1rem;font-weight:700;color:var(--olive-dark);margin-bottom:.5rem">📊 Today's Activity Preview</div>
+          <div id="pnTodayPreview" style="background:var(--cream);border-radius:10px;padding:.8rem 1rem;font-family:monospace;font-size:.79rem;white-space:pre-wrap;line-height:1.7;color:#334;min-height:60px"></div>
+          <button class="btn-sm" onclick="pnRefreshPreview()" style="margin-top:.4rem">↺ Refresh Preview</button>
+        </div>
       </div>
     </div>
   </div>
@@ -1188,6 +1277,8 @@ async function nextQuestion(){
   }catch(e){}
   // Save wrong answers to persistent error log
   saveWrongAnswersToLog(currentQuiz.wrongAnswers);
+  // Log quiz to parent notification daily report
+  pnLogQuiz(currentQuiz.selectedSubject, currentQuiz.correct, tot);
 }
 
 function renderReviewSection(pct){
@@ -1401,13 +1492,14 @@ async function doSearch(){
 let importedRows=[];
 
 function adminTab(tab){
-  const tabs=['addq','import','listq','addn','listn','daily','users'];
+  const tabs=['addq','import','listq','addn','listn','daily','users','report'];
   document.querySelectorAll('.admin-tab').forEach((t,i)=>t.classList.toggle('active',tabs[i]===tab));
   document.querySelectorAll('.admin-panel').forEach(p=>p.classList.remove('active'));
   const panelId='ap'+tab.charAt(0).toUpperCase()+tab.slice(1);
   document.getElementById(panelId).classList.add('active');
   if(tab==='listq')renderQList();if(tab==='listn')renderNotesList();if(tab==='users')renderUsers();
   if(tab==='daily'){setDailyDateToday();renderDailyPanel();}
+  if(tab==='report'){pnLoadSettingsToForm();pnRefreshPreview();}
 }
 
 /* ══ CSV / GOOGLE SHEETS IMPORT ══ */
@@ -2083,6 +2175,10 @@ function bpToggleTopic(key, el) {
   if (bpCompletedTopics[key]) {
     row.classList.add('bp-topic-done');
     row.querySelector('.bp-tick').textContent = '✅';
+    // Log topic to parent notification daily report
+    const subj  = row.querySelector('.bp-topic-subj')?.textContent || '';
+    const topic = row.querySelector('.bp-topic-name')?.textContent || '';
+    if (topic) pnLogTopic(subj ? `${subj}: ${topic}` : topic);
   } else {
     row.classList.remove('bp-topic-done');
     row.querySelector('.bp-tick').textContent = '⬜';
@@ -2675,6 +2771,325 @@ async function renderDailyPanel() {
 
 function quickAddForDate(dateStr) { adminTab('addq'); setTimeout(()=>{ const el=document.getElementById('aDate'); if(el)el.value=dateStr; },150); }
 function quickAddNoteForDate(dateStr) { adminTab('addn'); setTimeout(()=>{ const el=document.getElementById('nDate'); if(el)el.value=dateStr; },150); }
+
+/* ══════════════════════════════════════════════════════════
+   PARENT NOTIFICATION ENGINE
+   - Active time: counts only when screen is visible + user
+     is not idle (2-min idle threshold)
+   - Daily log: topics studied + quiz scores per day
+   - Email: EmailJS (free, 200/month)
+   - WhatsApp: Callmebot API (completely free)
+   - Scheduler: auto-fires at configured time once per day
+   ══════════════════════════════════════════════════════════ */
+
+const PN_IDLE_MS = 2 * 60 * 1000;   // 2 minutes of no activity = idle
+let _pnLastActivity = Date.now();
+let _pnActiveTimer = null;
+let _pnSchedulerTimer = null;
+
+// ── Activity detection ──────────────────────────────────────
+function _pnResetIdle() { _pnLastActivity = Date.now(); }
+['mousemove','keydown','click','touchstart','scroll'].forEach(ev =>
+  document.addEventListener(ev, _pnResetIdle, { passive: true }));
+
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') {
+    _pnLastActivity = Date.now();   // page came back into view = active
+    _pnStartActiveTimer();
+  } else {
+    _pnStopActiveTimer();           // page hidden = stop counting
+  }
+});
+
+function _pnStartActiveTimer() {
+  if (_pnActiveTimer) return;
+  _pnActiveTimer = setInterval(() => {
+    if (document.visibilityState !== 'visible') return;   // hidden
+    if (Date.now() - _pnLastActivity >= PN_IDLE_MS) return; // idle
+    // User is visible and active — count 1 minute
+    const log = pnGetTodayLog();
+    log.activeMinutes = (log.activeMinutes || 0) + 1;
+    pnSaveTodayLog(log);
+  }, 60000); // tick every real minute
+}
+
+function _pnStopActiveTimer() {
+  if (_pnActiveTimer) { clearInterval(_pnActiveTimer); _pnActiveTimer = null; }
+}
+
+// Start immediately
+_pnStartActiveTimer();
+
+// ── Daily log helpers ───────────────────────────────────────
+function pnDateKey(dateStr) {
+  return 'pr_log_' + (dateStr || new Date().toISOString().slice(0, 10));
+}
+function pnGetTodayLog() {
+  try { return JSON.parse(localStorage.getItem(pnDateKey()) || '{}'); } catch { return {}; }
+}
+function pnGetLogFor(dateStr) {
+  try { return JSON.parse(localStorage.getItem(pnDateKey(dateStr)) || '{}'); } catch { return {}; }
+}
+function pnSaveTodayLog(log) {
+  log.date = new Date().toISOString().slice(0, 10);
+  localStorage.setItem(pnDateKey(), JSON.stringify(log));
+}
+
+// Called when a topic checkbox is toggled ON
+function pnLogTopic(topicLabel) {
+  if (!topicLabel) return;
+  const log = pnGetTodayLog();
+  if (!log.topics) log.topics = [];
+  if (!log.topics.includes(topicLabel)) {
+    log.topics.push(topicLabel);
+    pnSaveTodayLog(log);
+  }
+}
+
+// Called at end of every quiz
+function pnLogQuiz(subject, score, total) {
+  const log = pnGetTodayLog();
+  if (!log.quizzes) log.quizzes = [];
+  const pct = total > 0 ? Math.round(score / total * 100) : 0;
+  const timeLabel = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+  log.quizzes.push({ subject: subject || 'General', score, total, pct, time: timeLabel });
+  pnSaveTodayLog(log);
+}
+
+// ── Settings helpers ────────────────────────────────────────
+function pnLoadSettings() {
+  try { return JSON.parse(localStorage.getItem('pn_settings') || '{}'); } catch { return {}; }
+}
+function pnSaveSettings(s) {
+  localStorage.setItem('pn_settings', JSON.stringify(s));
+}
+
+function pnLoadSettingsToForm() {
+  const s = pnLoadSettings();
+  const set = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
+  const chk = (id, val) => { const el = document.getElementById(id); if (el) el.checked = !!val; };
+  set('pnParentName', s.parentName);
+  set('pnStudentName', s.studentName);
+  set('pnReportTime', s.reportTime || '21:00');
+  chk('pnEmailEnabled', s.emailEnabled);
+  set('pnParentEmail', s.parentEmail);
+  set('pnEjServiceId', s.ejServiceId);
+  set('pnEjTemplateId', s.ejTemplateId);
+  set('pnEjPublicKey', s.ejPublicKey);
+  chk('pnWaEnabled', s.waEnabled);
+  set('pnWaPhone', s.waPhone);
+  set('pnWaApiKey', s.waApiKey);
+  pnToggleEmailFields();
+  pnToggleWaFields();
+}
+
+function pnSaveSettingsFromForm() {
+  const get = id => (document.getElementById(id)?.value || '').trim();
+  const chk = id => document.getElementById(id)?.checked || false;
+  const s = {
+    parentName:  get('pnParentName'),
+    studentName: get('pnStudentName'),
+    reportTime:  get('pnReportTime') || '21:00',
+    emailEnabled: chk('pnEmailEnabled'),
+    parentEmail: get('pnParentEmail'),
+    ejServiceId: get('pnEjServiceId'),
+    ejTemplateId: get('pnEjTemplateId'),
+    ejPublicKey:  get('pnEjPublicKey'),
+    waEnabled:   chk('pnWaEnabled'),
+    waPhone:     get('pnWaPhone').replace(/\D/g, ''),  // digits only
+    waApiKey:    get('pnWaApiKey'),
+  };
+  pnSaveSettings(s);
+  pnRestartScheduler();
+  showToast('✅ Parent notification settings saved!');
+}
+
+function pnToggleEmailFields() {
+  const el = document.getElementById('pnEmailFields');
+  if (el) el.style.display = document.getElementById('pnEmailEnabled')?.checked ? '' : 'none';
+}
+function pnToggleWaFields() {
+  const el = document.getElementById('pnWaFields');
+  if (el) el.style.display = document.getElementById('pnWaEnabled')?.checked ? '' : 'none';
+}
+
+// ── Report builder ──────────────────────────────────────────
+function pnBuildReport(log) {
+  const s = pnLoadSettings();
+  const dateStr = log.date || new Date().toISOString().slice(0, 10);
+  const [y, m, d] = dateStr.split('-');
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const dateLabel = `${d} ${months[+m - 1]} ${y}`;
+  const studentName = s.studentName || window.currentUser?.name || 'Samarth';
+
+  const active  = log.activeMinutes || 0;
+  const topics  = log.topics  || [];
+  const quizzes = log.quizzes || [];
+  const absent  = active === 0 && topics.length === 0 && quizzes.length === 0;
+
+  if (absent) {
+    return `⚠️ SAINIKPREP ABSENT ALERT — ${dateLabel}\nStudent: ${studentName}\n\nNo study activity was recorded today.\nPlease check in with ${studentName} and ensure the study session happens.`;
+  }
+
+  const avgPct = quizzes.length
+    ? Math.round(quizzes.reduce((a, q) => a + q.pct, 0) / quizzes.length)
+    : null;
+  const grade = avgPct === null ? '' :
+    avgPct >= 90 ? '🏆 OUTSTANDING' :
+    avgPct >= 75 ? '✅ TARGET ACHIEVED' :
+    avgPct >= 60 ? '💪 PASSED' : '📕 NEEDS IMPROVEMENT';
+
+  let msg = `📚 SAINIKPREP DAILY REPORT — ${dateLabel}\n`;
+  msg += `Student: ${studentName}\n`;
+  msg += `Active Study Time: ${active} minute${active !== 1 ? 's' : ''}\n`;
+
+  if (topics.length) {
+    msg += `\n📝 Topics Studied (${topics.length}):\n`;
+    topics.forEach(t => { msg += `• ${t}\n`; });
+  }
+
+  if (quizzes.length) {
+    msg += `\n🎯 Quizzes Taken (${quizzes.length}):\n`;
+    quizzes.forEach(q => { msg += `• ${q.subject} — ${q.score}/${q.total} (${q.pct}%) at ${q.time}\n`; });
+    if (avgPct !== null) msg += `\nOverall Average: ${avgPct}% — ${grade}\n`;
+  }
+
+  msg += `\n— SainikPrep App`;
+  return msg;
+}
+
+// ── Send: Email (EmailJS) ───────────────────────────────────
+async function pnSendEmail(msg, subjectLine) {
+  const s = pnLoadSettings();
+  if (!s.emailEnabled)                                   return { ok: false, reason: 'Email not enabled' };
+  if (!s.ejServiceId || !s.ejTemplateId || !s.ejPublicKey) return { ok: false, reason: 'EmailJS credentials missing' };
+  if (!s.parentEmail)                                    return { ok: false, reason: 'Parent email missing' };
+  if (typeof emailjs === 'undefined')                    return { ok: false, reason: 'EmailJS SDK not loaded' };
+  try {
+    await emailjs.send(s.ejServiceId, s.ejTemplateId, {
+      to_email: s.parentEmail,
+      to_name:  s.parentName || 'Parent',
+      subject:  subjectLine || 'SainikPrep Daily Report',
+      message:  msg
+    }, { publicKey: s.ejPublicKey });
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, reason: e.text || e.message || String(e) };
+  }
+}
+
+// ── Send: WhatsApp (Callmebot — free HTTP GET API) ──────────
+function pnSendWhatsApp(msg) {
+  const s = pnLoadSettings();
+  if (!s.waEnabled)             return { ok: false, reason: 'WhatsApp not enabled' };
+  if (!s.waPhone || !s.waApiKey) return { ok: false, reason: 'WhatsApp number or API key missing' };
+  // Callmebot API: simple GET request — use Image() to avoid CORS issues
+  const encoded = encodeURIComponent(msg);
+  const url = `https://api.callmebot.com/whatsapp.php?phone=${s.waPhone}&text=${encoded}&apikey=${s.waApiKey}`;
+  const img = new Image();
+  img.src = url;
+  return { ok: true, note: 'WhatsApp message sent (check your phone)' };
+}
+
+// ── Send now (manual or scheduled) ─────────────────────────
+async function pnSendNow(dateStr) {
+  const log = dateStr ? pnGetLogFor(dateStr) : pnGetTodayLog();
+  const msg = pnBuildReport(log);
+  const s   = pnLoadSettings();
+  const today = log.date || new Date().toISOString().slice(0, 10);
+  const subj  = `SainikPrep Report — ${today}`;
+  const statusEl = document.getElementById('pnSendStatus');
+
+  let results = [];
+
+  if (s.emailEnabled) {
+    const r = await pnSendEmail(msg, subj);
+    results.push(`📧 Email: ${r.ok ? '✅ Sent to ' + s.parentEmail : '❌ ' + r.reason}`);
+  }
+  if (s.waEnabled) {
+    const r = pnSendWhatsApp(msg);
+    results.push(`💬 WhatsApp: ${r.ok ? '✅ ' + r.note : '❌ ' + r.reason}`);
+  }
+  if (!s.emailEnabled && !s.waEnabled) {
+    results.push('⚠️ No channels enabled. Please configure Email or WhatsApp above and save.');
+  }
+
+  const resultText = results.join('\n');
+  if (statusEl) {
+    statusEl.style.display = '';
+    statusEl.style.cssText = 'margin-top:.6rem;font-size:.83rem;background:var(--cream);border-radius:8px;padding:.5rem .8rem;white-space:pre-line;border-left:3px solid var(--olive-light)';
+    statusEl.textContent = resultText;
+  }
+  showToast(results[0] || '');
+
+  // Mark as sent
+  if (!dateStr) {
+    const tlog = pnGetTodayLog();
+    tlog.reportSent = true;
+    pnSaveTodayLog(tlog);
+  }
+}
+
+async function pnSendTest() {
+  const s = pnLoadSettings();
+  const name = s.studentName || window.currentUser?.name || 'Samarth';
+  const testMsg = `🧪 TEST — SainikPrep\nHello ${s.parentName || 'Parent'}, this is a test message from the SainikPrep app.\nNotifications for ${name} are set up correctly! ✅\n\n— SainikPrep App`;
+  const subj = 'SainikPrep — Test Notification';
+  const statusEl = document.getElementById('pnSendStatus');
+  let results = [];
+
+  if (s.emailEnabled) {
+    const r = await pnSendEmail(testMsg, subj);
+    results.push(`📧 Email: ${r.ok ? '✅ Test sent to ' + s.parentEmail : '❌ ' + r.reason}`);
+  }
+  if (s.waEnabled) {
+    const r = pnSendWhatsApp(testMsg);
+    results.push(`💬 WhatsApp: ${r.ok ? '✅ Test sent' : '❌ ' + r.reason}`);
+  }
+  if (!s.emailEnabled && !s.waEnabled) {
+    results.push('⚠️ Save your settings first and enable at least one channel.');
+  }
+
+  if (statusEl) {
+    statusEl.style.display = '';
+    statusEl.style.cssText = 'margin-top:.6rem;font-size:.83rem;background:var(--cream);border-radius:8px;padding:.5rem .8rem;white-space:pre-line;border-left:3px solid var(--olive-light)';
+    statusEl.textContent = results.join('\n');
+  }
+}
+
+// ── Today preview in admin panel ────────────────────────────
+function pnRefreshPreview() {
+  const el = document.getElementById('pnTodayPreview');
+  if (!el) return;
+  const log = pnGetTodayLog();
+  const hasData = (log.activeMinutes || 0) > 0 || (log.topics || []).length || (log.quizzes || []).length;
+  if (!hasData) {
+    el.textContent = 'No activity recorded yet today. This will fill in as Samarth studies.';
+    return;
+  }
+  el.textContent = pnBuildReport(log);
+}
+
+// ── Scheduler: auto-send at configured time ─────────────────
+function pnRestartScheduler() {
+  if (_pnSchedulerTimer) { clearInterval(_pnSchedulerTimer); _pnSchedulerTimer = null; }
+  _pnSchedulerTimer = setInterval(() => {
+    const s = pnLoadSettings();
+    if (!s.reportTime) return;
+    if (!s.emailEnabled && !s.waEnabled) return;
+    const now = new Date();
+    const hhmm = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+    if (hhmm !== s.reportTime) return;
+    const log = pnGetTodayLog();
+    if (log.reportSent) return;          // already sent today
+    log.reportSent = true;               // mark before sending to prevent double-fire
+    pnSaveTodayLog(log);
+    pnSendNow();                          // fire the report
+  }, 60000); // check every minute
+}
+
+// Start scheduler on page load
+pnRestartScheduler();
 </script>
 </body>
 </html>
