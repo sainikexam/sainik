@@ -3010,8 +3010,10 @@ async function pnLoadStudents() {
     const users = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(u => !u.isAdmin);
     const s = pnLoadSettings();
     sel.innerHTML = '<option value="">— Select a student —</option>' +
-      users.map(u => `<option value="${u.name}" data-email="${u.email || ''}" ${s.studentName === u.name ? 'selected' : ''}>${u.name} (${u.email || 'no email'})</option>`).join('');
+      users.map(u => `<option value="${u.name}" data-uid="${u.id}" data-email="${u.email || ''}" ${s.studentName === u.name ? 'selected' : ''}>${u.name} (${u.email || 'no email'})</option>`).join('');
     if (!users.length) sel.innerHTML = '<option value="">— No non-admin users found —</option>';
+    // If a student was pre-selected (from saved settings), refresh preview for them
+    if (sel.value) pnRefreshPreview();
   } catch(e) {
     sel.innerHTML = '<option value="">— Could not load users —</option>';
   }
@@ -3028,6 +3030,7 @@ function pnOnStudentSelect() {
   const mailtoEl = document.getElementById('pnMailtoEmail');
   if (mailtoEl && !mailtoEl.value && studentEmail) mailtoEl.value = studentEmail;
   showToast(`\ud83d\udc64 Student set to: ${sel.value}`);
+  pnRefreshPreview();
 }
 
 // ── Settings helpers ────────────────────────────────────────
@@ -3386,15 +3389,69 @@ async function pnSendTest() {
 
 // ── Today preview in admin panel ────────────────────────────
 function pnRefreshPreview() {
+  const sel = document.getElementById('pnStudentSelector');
+  const opt = sel ? sel.options[sel.selectedIndex] : null;
+  const uid  = opt?.dataset?.uid  || '';
+  const name = opt?.value || '';
+  if (uid) {
+    _pnRefreshPreviewFirestore(uid, name);
+    return;
+  }
+  // Fallback: device-local log (no student selected)
   const el = document.getElementById('pnTodayPreview');
   if (!el) return;
   const log = pnGetTodayLog();
   const hasData = (log.activeMinutes || 0) > 0 || (log.topics || []).length || (log.quizzes || []).length;
   if (!hasData) {
-    el.textContent = 'No activity recorded yet today. This will fill in as Samarth studies.';
+    el.textContent = 'No activity recorded yet today. Select a student above or wait for activity to be logged.';
     return;
   }
   el.textContent = pnBuildReport(log);
+}
+
+async function _pnRefreshPreviewFirestore(uid, studentName) {
+  const el = document.getElementById('pnTodayPreview');
+  if (!el) return;
+  el.textContent = 'Loading activity for ' + (studentName || 'student') + '…';
+  try {
+    const today = localDateStr();
+    // Fetch student's Firestore doc for quiz scores
+    const snap = await window._FB.getDoc(window._FB.doc(window._FB.db, 'users', uid));
+    let firestoreQuizzes = [];
+    if (snap.exists()) {
+      const scores = (snap.data().scores || []).filter(s => {
+        if (s.dailyDate) return s.dailyDate === today;
+        if (s.ts) {
+          const d = new Date(s.ts);
+          return d.getFullYear() + '-' +
+            String(d.getMonth() + 1).padStart(2, '0') + '-' +
+            String(d.getDate()).padStart(2, '0') === today;
+        }
+        return false;
+      });
+      firestoreQuizzes = scores.map(s => ({
+        subject: s.subject || 'General',
+        score:   s.correct,
+        total:   s.total,
+        pct:     s.pct,
+        time:    s.ts ? new Date(s.ts).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }) : '—'
+      }));
+    }
+    // Merge with local log (active minutes + topic ticks from this device)
+    const localLog = pnGetTodayLog();
+    const mergedLog = {
+      ...localLog,
+      quizzes: firestoreQuizzes.length ? firestoreQuizzes : (localLog.quizzes || [])
+    };
+    const hasData = (mergedLog.activeMinutes || 0) > 0 || (mergedLog.topics || []).length || mergedLog.quizzes.length;
+    if (!hasData) {
+      el.textContent = 'No activity recorded today for ' + (studentName || 'this student') + '.';
+      return;
+    }
+    el.textContent = pnBuildReport(mergedLog);
+  } catch(e) {
+    el.textContent = 'Error loading activity: ' + (e.message || String(e));
+  }
 }
 
 // ── Scheduler: auto-send at configured time ─────────────────
