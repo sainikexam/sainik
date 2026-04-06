@@ -929,6 +929,18 @@ textarea.form-input{resize:vertical;min-height:80px}
           <strong>How it works:</strong> The app automatically tracks Samarth's active study time — it only counts time when the screen is visible and he is not idle (stops counting after 2 minutes of no activity). Topics studied and quiz scores are logged every day. At the time you set below, a daily report is auto-sent to the parent via Email and/or WhatsApp. If there is zero activity, an <em>absent alert</em> is sent instead.
         </div>
 
+        <!-- Student Selector -->
+        <div style="margin-bottom:1rem;background:var(--sand);border-radius:10px;padding:.8rem 1rem;border-left:3px solid var(--olive-light)">
+          <label class="form-label" style="margin-bottom:.4rem">👤 Select Student to Report On</label>
+          <div style="display:flex;gap:.6rem;align-items:center;flex-wrap:wrap">
+            <select class="form-input" id="pnStudentSelector" style="max-width:260px" onchange="pnOnStudentSelect()">
+              <option value="">— Loading students… —</option>
+            </select>
+            <button class="btn-sm" onclick="pnLoadStudents()" style="white-space:nowrap">↺ Refresh List</button>
+          </div>
+          <div style="font-size:.75rem;color:var(--text-muted);margin-top:.35rem">Selecting a student auto-fills the Student Name below. The report uses activity data logged on this device.</div>
+        </div>
+
         <!-- General -->
         <div class="form-row">
           <div><label class="form-label">Parent Name</label><input class="form-input" id="pnParentName" placeholder="e.g. Ravi Kumar"/></div>
@@ -982,7 +994,7 @@ textarea.form-input{resize:vertical;min-height:80px}
             Opens your phone/computer email app with the full report pre-filled. Just tap <strong>Send</strong>. Works with Gmail, Outlook, or any email app — no API keys needed.
           </div>
           <div class="form-row">
-            <div><label class="form-label">Parent Email (for mailto)</label><input class="form-input" type="email" id="pnParentEmail" placeholder="parent@gmail.com"/></div>
+            <div><label class="form-label">Parent Email (for mailto)</label><input class="form-input" type="email" id="pnMailtoEmail" placeholder="parent@gmail.com"/></div>
           </div>
           <button class="btn-sm" onclick="pnOpenMailto()" style="background:var(--olive);color:#fff;margin-top:.3rem">✉️ Open Email App with Today's Report</button>
         </div>
@@ -2989,6 +3001,35 @@ function pnLogQuiz(subject, score, total) {
   pnSaveTodayLog(log);
 }
 
+// ── Student selector helpers ────────────────────────────────
+async function pnLoadStudents() {
+  const sel = document.getElementById('pnStudentSelector');
+  if (!sel) return;
+  try {
+    const snap = await window._FB.getDocs(window._FB.collection(window._FB.db, 'users'));
+    const users = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(u => !u.isAdmin);
+    const s = pnLoadSettings();
+    sel.innerHTML = '<option value="">— Select a student —</option>' +
+      users.map(u => `<option value="${u.name}" data-email="${u.email || ''}" ${s.studentName === u.name ? 'selected' : ''}>${u.name} (${u.email || 'no email'})</option>`).join('');
+    if (!users.length) sel.innerHTML = '<option value="">— No non-admin users found —</option>';
+  } catch(e) {
+    sel.innerHTML = '<option value="">— Could not load users —</option>';
+  }
+}
+
+function pnOnStudentSelect() {
+  const sel = document.getElementById('pnStudentSelector');
+  if (!sel || !sel.value) return;
+  const nameEl = document.getElementById('pnStudentName');
+  if (nameEl) nameEl.value = sel.value;
+  // Auto-fill mailto email from student's stored email if mailto field is empty
+  const opt = sel.options[sel.selectedIndex];
+  const studentEmail = opt?.dataset?.email || '';
+  const mailtoEl = document.getElementById('pnMailtoEmail');
+  if (mailtoEl && !mailtoEl.value && studentEmail) mailtoEl.value = studentEmail;
+  showToast(`\ud83d\udc64 Student set to: ${sel.value}`);
+}
+
 // ── Settings helpers ────────────────────────────────────────
 function pnLoadSettings() {
   try { return JSON.parse(localStorage.getItem('pn_settings') || '{}'); } catch { return {}; }
@@ -3006,6 +3047,7 @@ function pnLoadSettingsToForm() {
   set('pnReportTime', s.reportTime || '21:00');
   chk('pnEmailEnabled', s.emailEnabled);
   set('pnParentEmail', s.parentEmail);
+  set('pnMailtoEmail', s.mailtoEmail || s.parentEmail);  // mailto field (separate ID)
   set('pnEjServiceId', s.ejServiceId);
   set('pnEjTemplateId', s.ejTemplateId);
   set('pnEjPublicKey', s.ejPublicKey);
@@ -3014,6 +3056,7 @@ function pnLoadSettingsToForm() {
   set('pnWaApiKey', s.waApiKey);
   pnToggleEmailFields();
   pnToggleWaFields();
+  pnLoadStudents();
 }
 
 
@@ -3025,7 +3068,8 @@ function pnSaveSettingsFromForm() {
     studentName: get('pnStudentName'),
     reportTime:  get('pnReportTime') || '21:00',
     emailEnabled: chk('pnEmailEnabled'),
-    parentEmail: get('pnParentEmail'),   // used for mailto:
+    parentEmail: get('pnParentEmail'),   // used for EmailJS
+    mailtoEmail: get('pnMailtoEmail'),   // used for Quick Email (mailto)
     ejServiceId: get('pnEjServiceId'),
     ejTemplateId: get('pnEjTemplateId'),
     ejPublicKey:  get('pnEjPublicKey'),
@@ -3248,13 +3292,17 @@ async function pnSendEmail(msg) {
 // ── Open mailto: with full report pre-filled ────────────────
 function pnOpenMailto() {
   const s   = pnLoadSettings();
+  const to  = s.mailtoEmail || s.parentEmail || '';
+  if (!to) {
+    showToast('⚠️ Please enter a Parent Email in the Quick Email section and save.');
+    return;
+  }
   const log = pnGetTodayLog();
   const msg = pnBuildReport(log);
   const today = log.date || localDateStr();
-  const to      = encodeURIComponent(s.parentEmail || '');
   const subject = encodeURIComponent(`SainikPrep Report — ${today}`);
   const body    = encodeURIComponent(msg);
-  window.open(`mailto:${to}?subject=${subject}&body=${body}`, '_self');
+  window.open(`mailto:${encodeURIComponent(to)}?subject=${subject}&body=${body}`, '_self');
 }
 
 // ── Send: WhatsApp (Callmebot — free HTTP GET API) ──────────
